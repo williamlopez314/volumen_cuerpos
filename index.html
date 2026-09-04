@@ -631,6 +631,7 @@
 
       let geom, baseGeom;
       let h = dimensions.altura * 0.6; // Scaling for view
+      let totalHeight = h; // Altura total real de la figura (usada para centrar la cámara)
 
       if (currentShape === 'prisma') {
         let l = dimensions.largo * 0.6;
@@ -708,6 +709,7 @@
         const cylGeom = new THREE.CylinderGeometry(r, r, hc, 32);
         const coneGeom = new THREE.ConeGeometry(r, hk, 32);
         baseGeom = new THREE.CircleGeometry(r, 32);
+        totalHeight = hc + hk;
 
         const cylMesh = new THREE.Mesh(cylGeom, bodyMaterial);
         cylMesh.position.y = hc / 2;
@@ -733,6 +735,15 @@
 
       mainMesh = group;
       scene.add(mainMesh);
+
+      // El objetivo de OrbitControls por defecto es (0,0,0), que corresponde a la BASE
+      // de la figura (no a su centro). Eso hacía que la figura se viera "empujada"
+      // hacia arriba en el encuadre. Centramos la cámara en el punto medio real de
+      // la altura de la figura para que quede balanceada verticalmente en el panel.
+      if (controls) {
+        controls.target.set(0, totalHeight / 2, 0);
+        controls.update();
+      }
 
       calculateCalculationsUI();
     }
