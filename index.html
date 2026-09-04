@@ -2,123 +2,148 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Demostración 3:1 - Experimento Centrado</title>
   <style>
-    /* Reset básico */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      padding: 20px;
+      font-family: system-ui, -apple-system, sans-serif;
     }
 
-    body {
-      background-color: #121212;
-      color: #ffffff;
-      font-family: sans-serif;
+    .card {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 20px;
       display: flex;
-      justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      overflow: hidden;
+      gap: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
 
-    /* Contenedor principal alineado y centrado */
-    .exp-canvas-container {
-      width: 100vw;
-      height: 100vh;
-      display: flex; /* */
-      justify-content: center; /* */
-      align-items: center;
-      position: relative;
+    .icon {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
     }
 
-    /* Ajuste para que el canvas llene el contenedor sin desalinearse */
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+    }
+
+    /* Solución al texto desajustado */
+    .description {
+      font-size: 0.95rem;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap; /* Evita que rompa feo en pantallas chicas */
+      gap: 4px;
+    }
+
+    .formula {
+      font-family: "KaTeX_Math", "Times New Roman", serif;
+      font-style: italic;
+      color: #334155;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .fraction {
+      display: inline-flex;
+      flex-direction: column;
+      vertical-align: middle;
+      text-align: center;
+      font-size: 0.85em;
+      line-height: 1;
+      padding: 0 2px;
+    }
+
+    .fraction .top {
+      border-bottom: 1px solid currentColor;
+      padding-bottom: 1px;
+    }
+
+    .fraction .bottom {
+      padding-top: 1px;
     }
   </style>
-  <!-- Importación de Three.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-  <div class="exp-canvas-container" id="canvas-container"></div>
+<div class="grid-container">
 
-  <script>
-    const container = document.getElementById('canvas-container');
+  <!-- Prisma Rectangular -->
+  <div class="card">
+    <div class="icon" style="color: #4f46e5;">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <div class="content">
+      <h3 class="title">Prisma Rectangular</h3>
+      <p class="description">
+        Bases iguales <span class="formula">(V = A<sub>b</sub> · h)</span>
+      </p>
+    </div>
+  </div>
 
-    // 1. Escena y Renderizador
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a1a1a);
+  <!-- Pirámide Cuadrada -->
+  <div class="card">
+    <div class="icon" style="color: #f59e0b;">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L1 21h22L12 2z"/></svg>
+    </div>
+    <div class="content">
+      <h3 class="title">Pirámide Cuadrada</h3>
+      <p class="description">
+        Termina en punta 
+        <span class="formula">
+          (<span class="fraction"><span class="top">1</span><span class="bottom">3</span></span> V)
+        </span>
+      </p>
+    </div>
+  </div>
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    container.appendChild(renderer.domElement);
+  <!-- Cilindro Circular -->
+  <div class="card">
+    <div class="icon" style="color: #10b981;">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 3.79 2 6v12c0 2.21 4.48 4 10 4s10-1.79 10-4V6c0-2.21-4.48-4-10-4z"/></svg>
+    </div>
+    <div class="content">
+      <h3 class="title">Cilindro Circular</h3>
+      <p class="description">
+        Base circular <span class="formula">(π · r² · h)</span>
+      </p>
+    </div>
+  </div>
 
-    // 2. Cámara (Inicializada temporalmente)
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+  <!-- Cono Circular -->
+  <div class="card">
+    <div class="icon" style="color: #f43f5e;">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 19c0 1.66 4.48 3 10 3s10-1.34 10-3L12 2z"/></svg>
+    </div>
+    <div class="content">
+      <h3 class="title">Cono Circular</h3>
+      <p class="description">
+        Punta circular 
+        <span class="formula">
+          (<span class="fraction"><span class="top">1</span><span class="bottom">3</span></span> π r² h)
+        </span>
+      </p>
+    </div>
+  </div>
 
-    // 3. Iluminación Directa e Ambiental (para asegurar la visibilidad del cuerpo)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); /* */
-    directionalLight.position.set(5, 10, 7.5);
-    scene.add(directionalLight);
-
-    // 4. Geometría y Malla del Cuerpo (Centrado en 0, 0, 0)
-    const geometry = new THREE.BoxGeometry(2, 2, 2);
-    geometry.center(); // Garantiza que el pivote del modelo quede exactamente en el centro
-    
-    const material = new THREE.MeshStandardMaterial({ color: 0x00a8ff, roughness: 0.4 });
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(0, 0, 0); // Posición explícita al centro del espacio
-    scene.add(mesh);
-
-    // Guía visual opcional: Grilla para confirmar que está alineado al centro del espacio
-    const gridHelper = new THREE.GridHelper(10, 10);
-    scene.add(gridHelper);
-
-    // 5. Función de Centrado y Ajuste de dimensiones
-    function updateDimensions() {
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-
-      if (width === 0 || height === 0) return;
-
-      // Actualizar relación de aspecto y matriz de la cámara
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-
-      // Centrar la cámara apuntando exactamente al origen (0,0,0)
-      camera.position.set(0, 3, 8);
-      camera.lookAt(0, 0, 0);
-
-      renderer.setSize(width, height);
-    }
-
-    // Retraso seguro (setTimeout) para garantizar que el DOM haya calculado las dimensiones del contenedor
-    setTimeout(() => {
-      updateDimensions();
-    }, 100); /* */
-
-    window.addEventListener('resize', updateDimensions);
-
-    // 6. Bucle de Renderizado / Animación
-    function animate() {
-      requestAnimationFrame(animate);
-      
-      // Animación continua sobre el centro
-      mesh.rotation.y += 0.01;
-      
-      renderer.render(scene, camera);
-    }
-
-    animate();
-  </script>
+</div>
 
 </body>
 </html>
