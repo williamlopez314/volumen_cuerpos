@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tarjetas de Cuerpos Geométricos</title>
+  <title>Experimento Demostraciones 3:1</title>
   <style>
+    /* Reset básico */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -13,14 +14,38 @@
 
     body {
       background-color: #f8fafc;
+      color: #1e293b;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       min-height: 100vh;
       padding: 20px;
     }
 
+    /* 1. SECCIÓN VISOR 3D */
+    .exp-canvas-container {
+      width: 100%;
+      max-width: 850px;
+      height: 380px;
+      background-color: #1a1a1a;
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      margin-bottom: 24px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 2. SECCIÓN TARJETAS INFORMACIONALES */
     .grid-container {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -29,7 +54,6 @@
       max-width: 850px;
     }
 
-    /* Estilo general de las tarjetas */
     .card {
       background: #ffffff;
       border: 2px solid #e2e8f0;
@@ -43,7 +67,6 @@
       cursor: pointer;
     }
 
-    /* Tarjeta seleccionada (Prisma Rectangular en la imagen) */
     .card.active {
       background-color: #f0f3ff;
       border-color: #6366f1;
@@ -88,7 +111,7 @@
     .formula-line {
       display: flex;
       align-items: center;
-      flex-wrap: nowrap; /* Evita que la fórmula se divida */
+      flex-wrap: nowrap;
       white-space: nowrap;
       margin-top: 2px;
     }
@@ -122,76 +145,149 @@
       padding-top: 1px;
     }
   </style>
+
+  <!-- Biblioteca Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-<div class="grid-container">
+  <!-- VISOR 3D (CUERPO EN EL CENTRO DEL ESPACIO) -->
+  <div class="exp-canvas-container" id="canvas-container"></div>
 
-  <!-- Prisma Rectangular -->
-  <div class="card active">
-    <div class="icon" style="color: #4f46e5;">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-      </svg>
-    </div>
-    <div class="content">
-      <h3 class="title">Prisma Rectangular</h3>
-      <div class="description">Bases iguales</div>
-      <div class="formula-line">
-        <span class="formula">(V = A<sub>b</sub> · h)</span>
+  <!-- TARJETAS DE CUERPOS CON FÓRMULAS COMPLETAS -->
+  <div class="grid-container">
+
+    <!-- Prisma Rectangular -->
+    <div class="card active">
+      <div class="icon" style="color: #4f46e5;">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div class="content">
+        <h3 class="title">Prisma Rectangular</h3>
+        <div class="description">Bases iguales</div>
+        <div class="formula-line">
+          <span class="formula">(V = A<sub>b</sub> · h)</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Pirámide Cuadrada -->
-  <div class="card">
-    <div class="icon" style="color: #f59e0b;">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2L1 21h22L12 2z"/>
-      </svg>
-    </div>
-    <div class="content">
-      <h3 class="title">Pirámide Cuadrada</h3>
-      <div class="description">Termina en punta</div>
-      <div class="formula-line">
-        <span class="formula">(V = <span class="fraction"><span class="top">1</span><span class="bottom">3</span></span> A<sub>b</sub> · h)</span>
+    <!-- Pirámide Cuadrada -->
+    <div class="card">
+      <div class="icon" style="color: #f59e0b;">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L1 21h22L12 2z"/>
+        </svg>
+      </div>
+      <div class="content">
+        <h3 class="title">Pirámide Cuadrada</h3>
+        <div class="description">Termina en punta</div>
+        <div class="formula-line">
+          <span class="formula">(V = <span class="fraction"><span class="top">1</span><span class="bottom">3</span></span> A<sub>b</sub> · h)</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Cilindro Circular -->
-  <div class="card">
-    <div class="icon" style="color: #10b981;">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2C6.48 2 2 3.79 2 6v12c0 2.21 4.48 4 10 4s10-1.79 10-4V6c0-2.21-4.48-4-10-4z"/>
-      </svg>
-    </div>
-    <div class="content">
-      <h3 class="title">Cilindro Circular</h3>
-      <div class="description">Base circular</div>
-      <div class="formula-line">
-        <span class="formula">(V = π · r² · h)</span>
+    <!-- Cilindro Circular -->
+    <div class="card">
+      <div class="icon" style="color: #10b981;">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 3.79 2 6v12c0 2.21 4.48 4 10 4s10-1.79 10-4V6c0-2.21-4.48-4-10-4z"/>
+        </svg>
+      </div>
+      <div class="content">
+        <h3 class="title">Cilindro Circular</h3>
+        <div class="description">Base circular</div>
+        <div class="formula-line">
+          <span class="formula">(V = π · r² · h)</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Cono Circular -->
-  <div class="card">
-    <div class="icon" style="color: #f43f5e;">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2L2 19c0 1.66 4.48 3 10 3s10-1.34 10-3L12 2z"/>
-      </svg>
-    </div>
-    <div class="content">
-      <h3 class="title">Cono Circular</h3>
-      <div class="description">Punta circular</div>
-      <div class="formula-line">
-        <span class="formula">(V = <span class="fraction"><span class="top">1</span><span class="bottom">3</span></span> π · r² · h)</span>
+    <!-- Cono Circular -->
+    <div class="card">
+      <div class="icon" style="color: #f43f5e;">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L2 19c0 1.66 4.48 3 10 3s10-1.34 10-3L12 2z"/>
+        </svg>
+      </div>
+      <div class="content">
+        <h3 class="title">Cono Circular</h3>
+        <div class="description">Punta circular</div>
+        <div class="formula-line">
+          <span class="formula">(V = <span class="fraction"><span class="top">1</span><span class="bottom">3</span></span> π · r² · h)</span>
+        </div>
       </div>
     </div>
+
   </div>
 
-</div>
+  <script>
+    const container = document.getElementById('canvas-container');
+
+    // 1. Escena y Renderizador
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1a1a1a);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(renderer.domElement);
+
+    // 2. Cámara
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+
+    // 3. Iluminación
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(5, 10, 7.5);
+    scene.add(directionalLight);
+
+    // 4. Objeto 3D alineado en el centro del espacio (0, 0, 0)
+    const geometry = new THREE.BoxGeometry(2, 2, 2);
+    geometry.center();
+    
+    const material = new THREE.MeshStandardMaterial({ color: 0x6366f1, roughness: 0.3 });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(0, 0, 0);
+    scene.add(mesh);
+
+    const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x222222);
+    scene.add(gridHelper);
+
+    // 5. Función de ajuste de la cámara y dimensiones
+    function updateDimensions() {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      if (width === 0 || height === 0) return;
+
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+
+      camera.position.set(0, 3, 7);
+      camera.lookAt(0, 0, 0);
+
+      renderer.setSize(width, height);
+    }
+
+    setTimeout(() => {
+      updateDimensions();
+    }, 100);
+
+    window.addEventListener('resize', updateDimensions);
+
+    // 6. Bucle de renderizado
+    function animate() {
+      requestAnimationFrame(animate);
+      mesh.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
 
 </body>
 </html>
