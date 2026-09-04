@@ -146,4 +146,87 @@
 </div>
 
 </body>
+</html>      flex-direction: column;
+      vertical-align: middle;
+      text-align: center;
+      font-size: 0.85em;
+      line-height: 1;
+      padding: 0 2px;
+    }
+
+    .fraction .top {
+      border-bottom: 1px solid currentColor;
+      padding-bottom: 1px;
+    }
+
+    .fraction .bottom {
+      padding-top: 1px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="grid-container">
+
+  <!-- Prisma Rectangular -->
+  <div class="card">
+    <div class="icon" style="color: #4f46e5;">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <div class="content">
+      <h3 class="title">Prisma Rectangular</h3>
+      <p class="description">
+        Bases iguales <span class="formula">(V = A<sub>b</sub> · h)</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Pirámide Cuadrada -->
+  <div class="card">
+    <div class="icon" style="color: #f59e0b;">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L1 21h22L12 2z"/></svg>
+    </div>
+    <div class="content">
+      <h3 class="title">Pirámide Cuadrada</h3>
+      <p class="description">
+        Termina en punta 
+        <span class="formula">
+          (<span class="fraction"><span class="top">1</span><span class="bottom">3</span></span> V)
+        </span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Cilindro Circular -->
+  <div class="card">
+    <div class="icon" style="color: #10b981;">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 3.79 2 6v12c0 2.21 4.48 4 10 4s10-1.79 10-4V6c0-2.21-4.48-4-10-4z"/></svg>
+    </div>
+    <div class="content">
+      <h3 class="title">Cilindro Circular</h3>
+      <p class="description">
+        Base circular <span class="formula">(π · r² · h)</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Cono Circular -->
+  <div class="card">
+    <div class="icon" style="color: #f43f5e;">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 19c0 1.66 4.48 3 10 3s10-1.34 10-3L12 2z"/></svg>
+    </div>
+    <div class="content">
+      <h3 class="title">Cono Circular</h3>
+      <p class="description">
+        Punta circular 
+        <span class="formula">
+          (<span class="fraction"><span class="top">1</span><span class="bottom">3</span></span> π r² h)
+        </span>
+      </p>
+    </div>
+  </div>
+
+</div>
+
+</body>
 </html>
