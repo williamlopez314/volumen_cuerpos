@@ -2,68 +2,126 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demostración 3:1 - Experimento Centrado</title>
   <style>
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      padding: 20px;
-      font-family: system-ui, -apple-system, sans-serif;
-    }
-
-    .card {
-      background: #ffffff;
-      border: 2px solid #e2e8f0;
-      border-radius: 16px;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    }
-
-    .icon {
-      width: 48px;
-      height: 48px;
-      flex-shrink: 0;
-    }
-
-    .content {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #1e293b;
+    /* Reset básico */
+    * {
+      box-sizing: border-box;
       margin: 0;
+      padding: 0;
     }
 
-    /* Solución al texto desajustado */
-    .description {
-      font-size: 0.95rem;
-      color: #64748b;
-      margin: 0;
-      line-height: 1.5;
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: sans-serif;
       display: flex;
+      justify-content: center;
       align-items: center;
-      flex-wrap: wrap; /* Evita que rompa feo en pantallas chicas */
-      gap: 4px;
+      min-height: 100vh;
+      overflow: hidden;
     }
 
-    .formula {
-      font-family: "KaTeX_Math", "Times New Roman", serif;
-      font-style: italic;
-      color: #334155;
-      display: inline-flex;
+    /* Contenedor principal alineado y centrado */
+    .exp-canvas-container {
+      width: 100vw;
+      height: 100vh;
+      display: flex; /* */
+      justify-content: center; /* */
       align-items: center;
+      position: relative;
     }
 
-    .fraction {
-      display: inline-flex;
-      flex-direction: column;
+    /* Ajuste para que el canvas llene el contenedor sin desalinearse */
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+  <!-- Importación de Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+  <div class="exp-canvas-container" id="canvas-container"></div>
+
+  <script>
+    const container = document.getElementById('canvas-container');
+
+    // 1. Escena y Renderizador
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1a1a1a);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(renderer.domElement);
+
+    // 2. Cámara (Inicializada temporalmente)
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+
+    // 3. Iluminación Directa e Ambiental (para asegurar la visibilidad del cuerpo)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); /* */
+    directionalLight.position.set(5, 10, 7.5);
+    scene.add(directionalLight);
+
+    // 4. Geometría y Malla del Cuerpo (Centrado en 0, 0, 0)
+    const geometry = new THREE.BoxGeometry(2, 2, 2);
+    geometry.center(); // Garantiza que el pivote del modelo quede exactamente en el centro
+    
+    const material = new THREE.MeshStandardMaterial({ color: 0x00a8ff, roughness: 0.4 });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(0, 0, 0); // Posición explícita al centro del espacio
+    scene.add(mesh);
+
+    // Guía visual opcional: Grilla para confirmar que está alineado al centro del espacio
+    const gridHelper = new THREE.GridHelper(10, 10);
+    scene.add(gridHelper);
+
+    // 5. Función de Centrado y Ajuste de dimensiones
+    function updateDimensions() {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      if (width === 0 || height === 0) return;
+
+      // Actualizar relación de aspecto y matriz de la cámara
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+
+      // Centrar la cámara apuntando exactamente al origen (0,0,0)
+      camera.position.set(0, 3, 8);
+      camera.lookAt(0, 0, 0);
+
+      renderer.setSize(width, height);
+    }
+
+    // Retraso seguro (setTimeout) para garantizar que el DOM haya calculado las dimensiones del contenedor
+    setTimeout(() => {
+      updateDimensions();
+    }, 100); /* */
+
+    window.addEventListener('resize', updateDimensions);
+
+    // 6. Bucle de Renderizado / Animación
+    function animate() {
+      requestAnimationFrame(animate);
+      
+      // Animación continua sobre el centro
+      mesh.rotation.y += 0.01;
+      
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+
+</body>
+</html>      flex-direction: column;
       vertical-align: middle;
       text-align: center;
       font-size: 0.85em;
