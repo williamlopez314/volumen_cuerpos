@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<index>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -57,6 +57,28 @@
       100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
     }
 
+    /* FIX: El "preflight" de Tailwind fuerza a TODOS los <svg> a display:block,
+       pero MathJax dibuja cada fórmula como un <svg> dentro de <mjx-container>.
+       Eso rompe el flujo del texto: el paréntesis de apertura queda en una línea,
+       la fórmula en otra y el paréntesis de cierre en una tercera.
+       Aquí se restaura el comportamiento "en línea" SOLO para las fórmulas. */
+    mjx-container {
+      display: inline-block !important;
+      margin: 0 1px !important;
+      vertical-align: -0.15em;
+      max-width: 100%;
+    }
+    mjx-container svg {
+      display: inline !important;
+    }
+    /* Evita que una fórmula larga desborde tarjetas angostas (ej. tarjetas de figuras) */
+    mjx-container[display="true"] {
+      display: block !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    /* Custom Scrollbars */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -108,9 +130,14 @@
 
     <!-- TAB 1: EXPLORADOR 3D -->
     <section id="section-explorador" class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
+      
+      <!-- Left Panel: Controls & Formula Scaffolding -->
       <div class="lg:col-span-5 flex flex-col gap-5">
+        
+        <!-- Shape Selection Box -->
         <div class="glass-card p-5 rounded-3xl shadow-sm border border-indigo-100">
           <label class="text-xs font-extrabold uppercase tracking-wider text-indigo-600 block mb-3">1. Selecciona la Figura Geométrica</label>
+          
           <div class="grid grid-cols-2 gap-2">
             <button onclick="selectShape('prisma')" id="btn-prisma" class="shape-btn bg-indigo-50 border-2 border-indigo-500 text-indigo-900 p-3 rounded-2xl flex items-center gap-3 font-bold text-left transition-all hover:border-indigo-600 shadow-sm">
               <i class="fa-solid fa-cube text-xl text-indigo-600"></i>
@@ -145,11 +172,13 @@
             </button>
           </div>
 
+          <!-- Compound shape button -->
           <button onclick="selectShape('silo')" id="btn-silo" class="w-full mt-2 bg-white border-2 border-slate-200 text-slate-700 p-2.5 rounded-2xl flex items-center justify-center gap-3 font-bold text-xs transition-all hover:border-indigo-400">
             <i class="fa-solid fa-industry text-purple-600"></i> Silo Compuesto (Cilindro + Cono)
           </button>
         </div>
 
+        <!-- Sliders Box -->
         <div class="glass-card p-5 rounded-3xl shadow-sm border border-indigo-100 flex-1">
           <div class="flex justify-between items-center mb-4">
             <label class="text-xs font-extrabold uppercase tracking-wider text-indigo-600">2. Modifica sus Medidas</label>
@@ -160,39 +189,54 @@
             </div>
           </div>
 
-          <div id="controls-container" class="space-y-4"></div>
+          <!-- Dynamic Controls Container -->
+          <div id="controls-container" class="space-y-4">
+            <!-- Dynamic Sliders via JS -->
+          </div>
         </div>
 
+        <!-- Visual Formula Breakdown Box -->
         <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-5 rounded-3xl shadow-lg border border-indigo-700">
           <div class="flex justify-between items-center mb-2">
             <span class="text-xs font-bold text-amber-400 uppercase tracking-widest"><i class="fa-solid fa-lightbulb"></i> Descomposición de la Fórmula</span>
             <span id="formula-badge" class="bg-indigo-800 text-indigo-200 text-[11px] px-2 py-0.5 rounded-md font-semibold">Regla General</span>
           </div>
 
+          <!-- Step 1: Base Area -->
           <div class="bg-indigo-950/80 p-3 rounded-2xl mb-3 border border-indigo-800/80">
             <div class="text-xs text-indigo-300 font-semibold mb-1 flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-blue-400"></span> Paso 1: Área de la Base ($A_b$)
             </div>
-            <div id="base-calc-display" class="text-base font-mono font-bold text-blue-200"></div>
+            <div id="base-calc-display" class="text-base font-mono font-bold text-blue-200">
+              <!-- JS Injected -->
+            </div>
           </div>
 
+          <!-- Step 2: Total Volume -->
           <div class="bg-indigo-950/80 p-3 rounded-2xl border border-indigo-800/80">
             <div class="text-xs text-amber-300 font-semibold mb-1 flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-amber-400"></span> Paso 2: Aplicar Altura y Factor ($\frac{1}{3}$)
             </div>
-            <div id="volume-calc-display" class="text-lg font-mono font-extrabold text-amber-300"></div>
+            <div id="volume-calc-display" class="text-lg font-mono font-extrabold text-amber-300">
+              <!-- JS Injected -->
+            </div>
           </div>
         </div>
+
       </div>
 
+      <!-- Right Panel: 3D Canvas & Visual Annotations -->
       <div class="lg:col-span-7 flex flex-col">
         <div class="glass-card p-4 rounded-3xl shadow-sm border border-indigo-100 flex-1 flex flex-col relative overflow-hidden min-h-[420px]">
+          
+          <!-- Canvas Top Overlay Toolbar -->
           <div class="absolute top-6 left-6 z-10 flex flex-wrap items-center gap-2">
             <span class="bg-white/90 backdrop-blur text-slate-800 text-xs font-bold px-3 py-1.5 rounded-xl shadow border border-slate-200/80 flex items-center gap-2">
               <i class="fa-solid fa-arrows-spin text-indigo-600 animate-spin"></i> Arrastra con el mouse para rotar en 3D
             </span>
           </div>
 
+          <!-- Legend Overlay -->
           <div class="absolute bottom-6 left-6 z-10 bg-white/95 backdrop-blur p-3 rounded-2xl shadow border border-slate-200 text-xs space-y-1.5">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-blue-500 border border-blue-700 inline-block"></span>
@@ -204,24 +248,31 @@
             </div>
           </div>
 
+          <!-- ThreeJS Canvas Container -->
           <div id="canvas-container" class="w-full flex-1 rounded-2xl bg-gradient-to-b from-slate-100 to-indigo-50/50 cursor-grab active:cursor-grabbing"></div>
 
+          <!-- Result Summary Bar -->
           <div class="mt-4 bg-white p-4 rounded-2xl border border-slate-200 flex flex-wrap justify-between items-center gap-4">
             <div>
               <div class="text-xs text-slate-500 font-semibold">Resultado Final de Volumen:</div>
-              <div id="final-volume-result" class="text-2xl font-black text-indigo-700 font-heading">0 cm³</div>
+              <div id="final-volume-result" class="text-2xl font-black text-indigo-700 font-heading">
+                0 cm³
+              </div>
             </div>
             <div id="tip-box" class="bg-amber-50 border border-amber-200 text-amber-900 text-xs p-3 rounded-xl max-w-sm">
               <i class="fa-solid fa-circle-info text-amber-600 mr-1"></i>
               <span id="tip-text">El prisma mantiene la misma sección a lo largo de toda su altura.</span>
             </div>
           </div>
+
         </div>
       </div>
+
     </section>
 
     <!-- TAB 2: DEMOSTRACIÓN DE LA RELACIÓN 3:1 -->
     <section id="section-experimento" class="hidden flex-1 flex-col space-y-6">
+      
       <div class="bg-indigo-900 text-white p-6 rounded-3xl shadow-lg border border-indigo-700 flex flex-col md:flex-row justify-between items-center gap-6">
         <div class="space-y-2 max-w-2xl">
           <span class="bg-amber-400 text-indigo-950 font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider">Demostración Visual Clave</span>
@@ -241,6 +292,7 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-12 gap-6 flex-1">
+        <!-- Interactive Pouring Controls -->
         <div class="md:col-span-4 glass-card p-6 rounded-3xl border border-indigo-100 flex flex-col justify-between">
           <div class="space-y-4">
             <h3 class="font-bold text-lg text-slate-800 border-b pb-2">Simulador de Trasvasije</h3>
@@ -248,14 +300,18 @@
               Haz clic en el botón para verter el contenido del recipiente puntiagudo dentro del recipiente recto.
             </p>
 
+            <!-- State Tracker -->
             <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100 text-center space-y-2">
               <div class="text-xs font-extrabold uppercase text-indigo-600">Contenedor Principal</div>
-              <div id="fill-status-text" class="text-xl font-black text-indigo-900">0 / 3 Llenados (0%)</div>
+              <div id="fill-status-text" class="text-xl font-black text-indigo-900">
+                0 / 3 Llenados (0%)
+              </div>
               <div class="w-full bg-slate-200 h-4 rounded-full overflow-hidden p-0.5">
                 <div id="fill-progress-bar" class="bg-gradient-to-r from-blue-500 to-indigo-600 h-full rounded-full transition-all duration-700" style="width: 0%"></div>
               </div>
             </div>
 
+            <!-- Math Explanation -->
             <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 text-xs text-amber-900 space-y-2">
               <div class="font-bold flex items-center gap-2">
                 <i class="fa-solid fa-calculator text-amber-600"></i> Conclusión Matemática:
@@ -277,14 +333,17 @@
           </div>
         </div>
 
+        <!-- Water Animation Canvas -->
         <div class="md:col-span-8 glass-card p-4 rounded-3xl border border-indigo-100 flex flex-col justify-center items-center relative overflow-hidden min-h-[380px]">
-          <div id="exp-canvas-container" class="w-full h-full min-h-[380px] bg-slate-900 rounded-2xl"></div>
+          <div id="exp-canvas-container" class="w-full h-full min-h-[350px] bg-slate-900 rounded-2xl"></div>
         </div>
       </div>
+
     </section>
 
-    <!-- TAB 3: RESOLUCIÓN PASO A PASO -->
+    <!-- TAB 3: RESOLUCIÓN PASO A PASO CON ANDAMIAJE -->
     <section id="section-calculadora" class="hidden flex-1 flex-col space-y-6">
+      
       <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm max-w-3xl mx-auto w-full space-y-6">
         <div class="border-b pb-4">
           <span class="bg-emerald-100 text-emerald-800 font-bold text-xs px-3 py-1 rounded-full uppercase">Guía de Apoyo Interactivas</span>
@@ -292,12 +351,14 @@
           <p class="text-xs text-slate-500">Diseñado para ayudarte a organizar los datos sin confundir las fórmulas.</p>
         </div>
 
+        <!-- Step Selector Radio Tabs -->
         <div class="grid grid-cols-3 gap-2 bg-slate-100 p-1.5 rounded-2xl text-center text-xs font-bold">
           <div id="wiz-step-1-indicator" class="py-2.5 rounded-xl bg-indigo-600 text-white shadow">1. Identificar Datos</div>
           <div id="wiz-step-2-indicator" class="py-2.5 rounded-xl text-slate-500">2. Área Basal ($A_b$)</div>
           <div id="wiz-step-3-indicator" class="py-2.5 rounded-xl text-slate-500">3. Volumen Final ($V$)</div>
         </div>
 
+        <!-- Step Content 1 -->
         <div id="wiz-content-1" class="space-y-4">
           <label class="block text-sm font-extrabold text-slate-700">Selecciona el tipo de cuerpo geométrico del problema:</label>
           <select id="wiz-shape-type" onchange="updateWizInputs()" class="w-full p-3 rounded-2xl border-2 border-slate-200 text-sm font-bold text-slate-700 focus:border-indigo-500 outline-none">
@@ -307,13 +368,16 @@
             <option value="cono">Cono (Embudo, Copa de postre)</option>
           </select>
 
-          <div id="wiz-inputs-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100"></div>
+          <div id="wiz-inputs-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100">
+            <!-- Dynamic Inputs depending on shape -->
+          </div>
 
           <button onclick="goToWizStep(2)" class="w-full py-3 bg-indigo-600 text-white font-bold rounded-2xl text-sm hover:bg-indigo-700 shadow">
             Siguiente Paso: Calcular Área de la Base <i class="fa-solid fa-arrow-right ml-1"></i>
           </button>
         </div>
 
+        <!-- Step Content 2 -->
         <div id="wiz-content-2" class="hidden space-y-4">
           <div class="bg-blue-50 p-4 rounded-2xl border border-blue-200 text-xs text-blue-900 space-y-2">
             <div class="font-bold text-sm"><i class="fa-solid fa-circle-question text-blue-600"></i> ¿Cómo se calcula el área de la base en esta figura?</div>
@@ -335,6 +399,7 @@
           </div>
         </div>
 
+        <!-- Step Content 3 -->
         <div id="wiz-content-3" class="hidden space-y-4">
           <div id="wiz-factor-hint" class="bg-amber-50 p-4 rounded-2xl border border-amber-200 text-xs text-amber-900 space-y-1">
             <div class="font-bold text-sm"><i class="fa-solid fa-triangle-exclamation text-amber-600"></i> ¡Atención al factor $\frac{1}{3}$!</div>
@@ -351,12 +416,17 @@
             <i class="fa-solid fa-rotate-left mr-1"></i> Resolver otro problema
           </button>
         </div>
+
       </div>
+
     </section>
 
-    <!-- TAB 4: DESAFÍOS -->
+    <!-- TAB 4: DESAFÍOS PRÁCTICOS DE LAS GUÍAS -->
     <section id="section-desafios" class="hidden flex-1 flex-col space-y-6">
+      
       <div class="grid grid-cols-1 md:grid-cols-12 gap-6 flex-1">
+        
+        <!-- Challenge Cards List -->
         <div class="md:col-span-5 space-y-3">
           <div class="text-xs font-black uppercase text-slate-500 tracking-wider mb-2">Selecciona un ejercicio de tu guía:</div>
 
@@ -397,6 +467,7 @@
           </div>
         </div>
 
+        <!-- Interactive Question Workspace -->
         <div class="md:col-span-7 glass-card p-6 rounded-3xl border border-indigo-100 flex flex-col justify-between space-y-4">
           <div class="space-y-4">
             <div class="flex items-center justify-between border-b pb-3">
@@ -408,14 +479,19 @@
               Cargando enunciado...
             </p>
 
+            <!-- Clue/Hint Accordion Box -->
             <div id="chal-hint-box" class="hidden bg-amber-50 p-3 rounded-xl border border-amber-200 text-xs text-amber-900">
               <span class="font-bold"><i class="fa-solid fa-lightbulb text-amber-600"></i> Pista de Apoyo:</span>
               <span id="chal-hint-text">---</span>
             </div>
 
-            <div id="chal-inputs-area" class="space-y-3 pt-2"></div>
+            <!-- Answer Inputs Grid -->
+            <div id="chal-inputs-area" class="space-y-3 pt-2">
+              <!-- JS Generated Question fields -->
+            </div>
           </div>
 
+          <!-- Actions -->
           <div class="pt-4 border-t flex flex-wrap gap-3 justify-between items-center">
             <button onclick="toggleHint()" class="text-xs font-bold text-amber-700 hover:text-amber-800 bg-amber-100 px-3 py-2 rounded-xl border border-amber-200">
               <i class="fa-solid fa-circle-question"></i> ¿Necesitas una pista?
@@ -426,9 +502,12 @@
             </button>
           </div>
 
+          <!-- Feedback alert message -->
           <div id="chal-feedback" class="hidden p-4 rounded-2xl text-xs font-bold"></div>
         </div>
+
       </div>
+
     </section>
 
   </main>
@@ -436,11 +515,13 @@
   <script>
     let activeTab = 'explorador';
     let currentShape = 'prisma';
-    let piMode = 3.14; 
+    let piMode = 3.14; // 3.14 or 'symbol'
     
+    // 3D Scene Variables
     let scene, camera, renderer, controls;
     let mainMesh, baseMesh, heightLineMesh;
     
+    // Current Shape Dimensions
     let dimensions = {
       largo: 8,
       ancho: 5,
@@ -477,13 +558,15 @@
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
 
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
       scene.add(ambientLight);
 
       const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
       dirLight.position.set(20, 40, 20);
       scene.add(dirLight);
 
+      // Grid & Floor
       const grid = new THREE.GridHelper(30, 30, 0xcbd5e1, 0xe2e8f0);
       grid.position.y = -0.01;
       scene.add(grid);
@@ -511,12 +594,14 @@
     function update3DShape() {
       if (!scene) return;
 
+      // Remove existing meshes
       if (mainMesh) scene.remove(mainMesh);
       if (baseMesh) scene.remove(baseMesh);
       if (heightLineMesh) scene.remove(heightLineMesh);
 
       const group = new THREE.Group();
 
+      // Materials
       const bodyMaterial = new THREE.MeshPhongMaterial({
         color: 0x6366f1,
         transparent: true,
@@ -545,7 +630,7 @@
       });
 
       let geom, baseGeom;
-      let h = dimensions.altura * 0.6; 
+      let h = dimensions.altura * 0.6; // Scaling for view
 
       if (currentShape === 'prisma') {
         let l = dimensions.largo * 0.6;
@@ -559,6 +644,7 @@
         wire.position.y = h / 2;
         group.add(mesh, wire);
 
+        // Base highlight
         const base = new THREE.Mesh(baseGeom, baseMaterial);
         base.rotation.x = -Math.PI / 2;
         base.position.y = 0.02;
@@ -636,6 +722,7 @@
         group.add(base);
       }
 
+      // Height Axis Line Indicator (Amber color)
       const points = [];
       points.push(new THREE.Vector3(0, 0, 0));
       points.push(new THREE.Vector3(0, h, 0));
@@ -875,9 +962,7 @@
       if (tab === 'explorador') {
         setTimeout(onWindowResize, 100);
       } else if (tab === 'experimento') {
-        setTimeout(() => {
-          initExperimentCanvas();
-        }, 100);
+        initExperimentCanvas();
       } else if (tab === 'calculadora') {
         updateWizInputs();
       } else if (tab === 'desafios') {
@@ -886,12 +971,12 @@
       renderMath();
     }
 
-    // ==========================================
-    // SECCIÓN DEMOSTRACIÓN 3:1 (CORREGIDO)
-    // ==========================================
     let expPourCount = 0;
-    let expPair = 'prism-pyramid'; 
-    let expScene, expCamera, expRenderer, expWaterMesh, expControls, expAnimId;
+    let expPair = 'prism-pyramid'; // 'prism-pyramid' or 'cylinder-cone'
+    let expScene, expCamera, expRenderer, expWaterMesh;
+    let expWaterHeight = 0; // Altura REAL actual del agua (en unidades de mundo), no la escala.
+    const EXP_WATER_BASE_HEIGHT = 0.1; // Altura con la que se crea la geometría del agua.
+    const EXP_MAX_WATER_HEIGHT = 7.8;  // Altura máxima (el contenedor mide 8 de alto).
 
     function setExperimentPair(pair) {
       expPair = pair;
@@ -905,60 +990,31 @@
       const container = document.getElementById('exp-canvas-container');
       if (!container) return;
 
-      if (expAnimId) {
-        cancelAnimationFrame(expAnimId);
-      }
+      // Protección: si el contenedor aún mide 0 (ej. justo al cambiar de pestaña),
+      // usamos min-h-[350px] como respaldo para evitar aspect = Infinity/NaN.
+      const w = container.clientWidth || 300;
+      const h = container.clientHeight || 350;
 
       expScene = new THREE.Scene();
       expScene.background = new THREE.Color(0x0f172a);
 
-      const width = container.clientWidth || 500;
-      const height = container.clientHeight || 380;
+      expCamera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+      expCamera.position.set(12, 12, 16);
+      expCamera.lookAt(0, 4, 0); // Apunta al centro del contenedor (el glassMesh está centrado en y=4).
+                                   // Sin esto, la cámara queda mirando hacia -Z por defecto y solo
+                                   // se alcanza a ver una esquina del objeto, como en la captura.
 
-      expCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-      expCamera.position.set(12, 10, 16);
-
-      expRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      expRenderer.setSize(width, height);
-      expRenderer.setPixelRatio(window.devicePixelRatio);
+      expRenderer = new THREE.WebGLRenderer({ antialias: true });
+      expRenderer.setSize(w, h);
       container.innerHTML = '';
       container.appendChild(expRenderer.domElement);
 
-      expControls = new THREE.OrbitControls(expCamera, expRenderer.domElement);
-      expControls.enableDamping = true;
-      expControls.dampingFactor = 0.05;
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(10, 20, 10);
+      expScene.add(light);
+      expScene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
-      // Iluminación intensa para materiales transparentes
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
-      expScene.add(ambientLight);
-
-      const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.2);
-      dirLight1.position.set(15, 25, 15);
-      expScene.add(dirLight1);
-
-      const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 0.6);
-      dirLight2.position.set(-15, 10, -15);
-      expScene.add(dirLight2);
-
-      // Rejilla de base
-      const grid = new THREE.GridHelper(20, 20, 0x334155, 0x1e293b);
-      grid.position.y = -0.01;
-      expScene.add(grid);
-
-      // Material translúcido del contenedor exterior
-      const glassMat = new THREE.MeshPhongMaterial({
-        color: 0x94a3b8,
-        transparent: true,
-        opacity: 0.35,
-        shininess: 100,
-        side: THREE.DoubleSide
-      });
-
-      const wireframeMat = new THREE.MeshBasicMaterial({
-        color: 0x64748b,
-        wireframe: true
-      });
-
+      // Container Outer Glass Mesh
       let containerGeom;
       if (expPair === 'prism-pyramid') {
         containerGeom = new THREE.BoxGeometry(6, 8, 6);
@@ -966,41 +1022,55 @@
         containerGeom = new THREE.CylinderGeometry(3.5, 3.5, 8, 32);
       }
 
-      const glassMesh = new THREE.Mesh(containerGeom, glassMat);
-      const wireMesh = new THREE.Mesh(containerGeom, wireframeMat);
-      glassMesh.position.y = 4;
-      wireMesh.position.y = 4;
-      expScene.add(glassMesh, wireMesh);
+      const glassMat = new THREE.MeshPhongMaterial({
+        color: 0x94a3b8,
+        transparent: true,
+        opacity: 0.3,
+        side: THREE.DoubleSide
+      });
 
-      // Malla de Agua fluida
+      const glassMesh = new THREE.Mesh(containerGeom, glassMat);
+      glassMesh.position.y = 4;
+      expScene.add(glassMesh);
+
+      // Water mesh (starts at height 0)
       let waterGeom;
       if (expPair === 'prism-pyramid') {
-        waterGeom = new THREE.BoxGeometry(5.8, 1, 5.8);
+        waterGeom = new THREE.BoxGeometry(5.8, 0.1, 5.8);
       } else {
-        waterGeom = new THREE.CylinderGeometry(3.4, 3.4, 1, 32);
+        waterGeom = new THREE.CylinderGeometry(3.4, 3.4, 0.1, 32);
       }
 
       const waterMat = new THREE.MeshPhongMaterial({
-        color: 0x0284c7,
+        color: 0x38bdf8,
         transparent: true,
-        opacity: 0.85,
-        shininess: 90
+        opacity: 0.85
       });
 
       expWaterMesh = new THREE.Mesh(waterGeom, waterMat);
-      expWaterMesh.position.y = 0.5;
-      expWaterMesh.scale.set(1, 0.001, 1); // Inicialmente vacío
+      expWaterMesh.position.y = 0.05;
+      expWaterHeight = 0;
       expScene.add(expWaterMesh);
 
       function renderExp() {
-        expAnimId = requestAnimationFrame(renderExp);
-        if (expControls) expControls.update();
-        if (expRenderer && expScene && expCamera) {
-          expRenderer.render(expScene, expCamera);
-        }
+        requestAnimationFrame(renderExp);
+        glassMesh.rotation.y += 0.005;
+        if (expWaterMesh) expWaterMesh.rotation.y += 0.005;
+        expRenderer.render(expScene, expCamera);
       }
       renderExp();
     }
+
+    function onExpWindowResize() {
+      const container = document.getElementById('exp-canvas-container');
+      if (!container || !expRenderer || !expCamera) return;
+      const w = container.clientWidth || 300;
+      const h = container.clientHeight || 350;
+      expCamera.aspect = w / h;
+      expCamera.updateProjectionMatrix();
+      expRenderer.setSize(w, h);
+    }
+    window.addEventListener('resize', onExpWindowResize);
 
     function pourWater() {
       if (expPourCount >= 3) {
@@ -1009,34 +1079,24 @@
       }
 
       expPourCount++;
-      const fillFraction = expPourCount / 3;
-      const targetHeight = fillFraction * 7.8; // Altura máxima 7.8
+      const targetHeight = (expPourCount / 3) * EXP_MAX_WATER_HEIGHT;
 
-      let currentHeight = expWaterMesh.scale.y * 1;
-      let startHeight = expWaterMesh.position.y * 2; 
-
-      let startTime = null;
-      const duration = 800; // ms de animación
-
-      function animateFill(timestamp) {
-        if (!startTime) startTime = timestamp;
-        let progress = (timestamp - startTime) / duration;
-        if (progress > 1) progress = 1;
-
-        let h = currentHeight + (targetHeight - currentHeight) * progress;
-        if (h <= 0.01) h = 0.01;
-
-        expWaterMesh.scale.y = h;
-        expWaterMesh.position.y = h / 2;
-
-        if (progress < 1) {
-          requestAnimationFrame(animateFill);
+      // Anima la altura REAL del agua (0 → targetHeight). En cada paso se recalculan
+      // JUNTAS la escala y la posición a partir de esa altura, así la base del agua
+      // siempre queda pegada al fondo (y=0) del contenedor en lugar de flotar.
+      const interval = setInterval(() => {
+        expWaterHeight += 0.12;
+        if (expWaterHeight >= targetHeight) {
+          expWaterHeight = targetHeight;
+          clearInterval(interval);
         }
-      }
-      requestAnimationFrame(animateFill);
+        const visibleHeight = Math.max(expWaterHeight, 0.001);
+        expWaterMesh.scale.y = visibleHeight / EXP_WATER_BASE_HEIGHT;
+        expWaterMesh.position.y = visibleHeight / 2;
+      }, 30);
 
-      document.getElementById('fill-status-text').innerText = `${expPourCount} / 3 Llenados (${Math.round(fillFraction * 100)}%)`;
-      document.getElementById('fill-progress-bar').style.width = `${fillFraction * 100}%`;
+      document.getElementById('fill-status-text').innerText = `${expPourCount} / 3 Llenados (${Math.round((expPourCount/3)*100)}%)`;
+      document.getElementById('fill-progress-bar').style.width = `${(expPourCount/3)*100}%`;
 
       if (expPourCount === 3) {
         document.getElementById('btn-pour').innerText = "¡Contenedor Completamente Lleno!";
@@ -1047,8 +1107,9 @@
 
     function resetPouring() {
       expPourCount = 0;
+      expWaterHeight = 0;
       if (expWaterMesh) {
-        expWaterMesh.scale.y = 0.001;
+        expWaterMesh.scale.y = 1;
         expWaterMesh.position.y = 0.05;
       }
       document.getElementById('fill-status-text').innerText = `0 / 3 Llenados (0%)`;
