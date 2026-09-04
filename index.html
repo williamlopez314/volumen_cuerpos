@@ -3,122 +3,1256 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Demostración 3:1 - Experimento Centrado</title>
-  <style>
-    /* Reset básico */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background-color: #121212;
-      color: #ffffff;
-      font-family: sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      overflow: hidden;
-    }
-
-    /* Contenedor principal alineado y centrado */
-    .exp-canvas-container {
-      width: 100vw;
-      height: 100vh;
-      display: flex; /* */
-      justify-content: center; /* */
-      align-items: center;
-      position: relative;
-    }
-
-    /* Ajuste para que el canvas llene el contenedor sin desalinearse */
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-  </style>
-  <!-- Importación de Three.js -->
+  <title>Laboratorio Interactivo de Volúmenes - 1° Medio</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js for 3D visualization -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-</head>
-<body>
-
-  <div class="exp-canvas-container" id="canvas-container"></div>
-
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- Canvas Confetti for positive reinforcement -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- MathJax Library para procesar las fórmulas matemáticas con formato LaTeX -->
   <script>
-    const container = document.getElementById('canvas-container');
-
-    // 1. Escena y Renderizador
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a1a1a);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    container.appendChild(renderer.domElement);
-
-    // 2. Cámara (Inicializada temporalmente)
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-
-    // 3. Iluminación Directa e Ambiental (para asegurar la visibilidad del cuerpo)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); /* */
-    directionalLight.position.set(5, 10, 7.5);
-    scene.add(directionalLight);
-
-    // 4. Geometría y Malla del Cuerpo (Centrado en 0, 0, 0)
-    const geometry = new THREE.BoxGeometry(2, 2, 2);
-    geometry.center(); // Garantiza que el pivote del modelo quede exactamente en el centro
-    
-    const material = new THREE.MeshStandardMaterial({ color: 0x00a8ff, roughness: 0.4 });
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(0, 0, 0); // Posición explícita al centro del espacio
-    scene.add(mesh);
-
-    // Guía visual opcional: Grilla para confirmar que está alineado al centro del espacio
-    const gridHelper = new THREE.GridHelper(10, 10);
-    scene.add(gridHelper);
-
-    // 5. Función de Centrado y Ajuste de dimensiones
-    function updateDimensions() {
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-
-      if (width === 0 || height === 0) return;
-
-      // Actualizar relación de aspecto y matriz de la cámara
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-
-      // Centrar la cámara apuntando exactamente al origen (0,0,0)
-      camera.position.set(0, 3, 8);
-      camera.lookAt(0, 0, 0);
-
-      renderer.setSize(width, height);
-    }
-
-    // Retraso seguro (setTimeout) para garantizar que el DOM haya calculado las dimensiones del contenedor
-    setTimeout(() => {
-      updateDimensions();
-    }, 100); /* */
-
-    window.addEventListener('resize', updateDimensions);
-
-    // 6. Bucle de Renderizado / Animación
-    function animate() {
-      requestAnimationFrame(animate);
-      
-      // Animación continua sobre el centro
-      mesh.rotation.y += 0.01;
-      
-      renderer.render(scene, camera);
-    }
-
-    animate();
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="mathjax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
   </script>
 
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #f4f7fe;
+    }
+
+    h1, h2, h3, .font-heading {
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    .pulse-glow {
+      animation: pulseGlow 2s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+      70% { box-shadow: 0 0 0 12px rgba(79, 70, 229, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-indigo-700 text-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="bg-amber-400 text-indigo-900 p-2.5 rounded-2xl font-black text-xl shadow-inner">
+          <i class="fa-solid fa-shapes"></i>
+        </div>
+        <div>
+          <h1 class="text-xl md:text-2xl font-bold tracking-wide">Volumen3D <span class="bg-indigo-600 text-amber-300 text-xs px-2 py-0.5 rounded-full border border-indigo-400">1° Medio Reforzamiento</span></h1>
+          <p class="text-xs text-indigo-200">Explorador geométrico adaptado para resolución guiada</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex bg-indigo-800/60 p-1.5 rounded-xl border border-indigo-500/30 text-xs md:text-sm font-semibold overflow-x-auto">
+        <button id="tab-explorador" onclick="switchTab('explorador')" class="tab-btn active-tab bg-amber-400 text-indigo-950 px-4 py-2 rounded-lg transition-all shadow flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-cube"></i> Explorador 3D
+        </button>
+        <button id="tab-experimento" onclick="switchTab('experimento')" class="tab-btn text-indigo-100 hover:text-white hover:bg-indigo-700/50 px-4 py-2 rounded-lg transition-all flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-flask"></i> Demostración 3:1
+        </button>
+        <button id="tab-calculadora" onclick="switchTab('calculadora')" class="tab-btn text-indigo-100 hover:text-white hover:bg-indigo-700/50 px-4 py-2 rounded-lg transition-all flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-list-check"></i> Paso a Paso
+        </button>
+        <button id="tab-desafios" onclick="switchTab('desafios')" class="tab-btn text-indigo-100 hover:text-white hover:bg-indigo-700/50 px-4 py-2 rounded-lg transition-all flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-trophy"></i> Desafíos
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-1 flex flex-col">
+
+    <!-- TAB 1: EXPLORADOR 3D -->
+    <section id="section-explorador" class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
+      <div class="lg:col-span-5 flex flex-col gap-5">
+        <div class="glass-card p-5 rounded-3xl shadow-sm border border-indigo-100">
+          <label class="text-xs font-extrabold uppercase tracking-wider text-indigo-600 block mb-3">1. Selecciona la Figura Geométrica</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="selectShape('prisma')" id="btn-prisma" class="shape-btn bg-indigo-50 border-2 border-indigo-500 text-indigo-900 p-3 rounded-2xl flex items-center gap-3 font-bold text-left transition-all hover:border-indigo-600 shadow-sm">
+              <i class="fa-solid fa-cube text-xl text-indigo-600"></i>
+              <div>
+                <div class="text-sm">Prisma Rectangular</div>
+                <div class="text-[10px] text-slate-500 font-normal">Bases iguales ($V = A_b \cdot h$)</div>
+              </div>
+            </button>
+
+            <button onclick="selectShape('piramide')" id="btn-piramide" class="shape-btn bg-white border-2 border-slate-200 text-slate-700 p-3 rounded-2xl flex items-center gap-3 font-bold text-left transition-all hover:border-indigo-400">
+              <i class="fa-solid fa-play text-xl text-amber-500 -rotate-90"></i>
+              <div>
+                <div class="text-sm">Pirámide Cuadrada</div>
+                <div class="text-[10px] text-slate-500 font-normal">Termina en punta ($\frac{1}{3}$)</div>
+              </div>
+            </button>
+
+            <button onclick="selectShape('cilindro')" id="btn-cilindro" class="shape-btn bg-white border-2 border-slate-200 text-slate-700 p-3 rounded-2xl flex items-center gap-3 font-bold text-left transition-all hover:border-indigo-400">
+              <i class="fa-solid fa-database text-xl text-emerald-600"></i>
+              <div>
+                <div class="text-sm">Cilindro Circular</div>
+                <div class="text-[10px] text-slate-500 font-normal">Base circular ($\pi \cdot r^2 \cdot h$)</div>
+              </div>
+            </button>
+
+            <button onclick="selectShape('cono')" id="btn-cono" class="shape-btn bg-white border-2 border-slate-200 text-slate-700 p-3 rounded-2xl flex items-center gap-3 font-bold text-left transition-all hover:border-indigo-400">
+              <i class="fa-solid fa-filter text-xl text-rose-500"></i>
+              <div>
+                <div class="text-sm">Cono Circular</div>
+                <div class="text-[10px] text-slate-500 font-normal">Punta circular ($\frac{1}{3} \pi r^2 h$)</div>
+              </div>
+            </button>
+          </div>
+
+          <button onclick="selectShape('silo')" id="btn-silo" class="w-full mt-2 bg-white border-2 border-slate-200 text-slate-700 p-2.5 rounded-2xl flex items-center justify-center gap-3 font-bold text-xs transition-all hover:border-indigo-400">
+            <i class="fa-solid fa-industry text-purple-600"></i> Silo Compuesto (Cilindro + Cono)
+          </button>
+        </div>
+
+        <div class="glass-card p-5 rounded-3xl shadow-sm border border-indigo-100 flex-1">
+          <div class="flex justify-between items-center mb-4">
+            <label class="text-xs font-extrabold uppercase tracking-wider text-indigo-600">2. Modifica sus Medidas</label>
+            <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-xl text-xs font-bold text-slate-600">
+              <span>Valor de $\pi$:</span>
+              <button onclick="togglePiMode(3.14)" id="pi-314" class="px-2 py-0.5 rounded-lg bg-indigo-600 text-white">3,14</button>
+              <button onclick="togglePiMode('symbol')" id="pi-symbol" class="px-2 py-0.5 rounded-lg hover:bg-slate-200">en $\pi$</button>
+            </div>
+          </div>
+
+          <div id="controls-container" class="space-y-4"></div>
+        </div>
+
+        <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-5 rounded-3xl shadow-lg border border-indigo-700">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-bold text-amber-400 uppercase tracking-widest"><i class="fa-solid fa-lightbulb"></i> Descomposición de la Fórmula</span>
+            <span id="formula-badge" class="bg-indigo-800 text-indigo-200 text-[11px] px-2 py-0.5 rounded-md font-semibold">Regla General</span>
+          </div>
+
+          <div class="bg-indigo-950/80 p-3 rounded-2xl mb-3 border border-indigo-800/80">
+            <div class="text-xs text-indigo-300 font-semibold mb-1 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-400"></span> Paso 1: Área de la Base ($A_b$)
+            </div>
+            <div id="base-calc-display" class="text-base font-mono font-bold text-blue-200"></div>
+          </div>
+
+          <div class="bg-indigo-950/80 p-3 rounded-2xl border border-indigo-800/80">
+            <div class="text-xs text-amber-300 font-semibold mb-1 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span> Paso 2: Aplicar Altura y Factor ($\frac{1}{3}$)
+            </div>
+            <div id="volume-calc-display" class="text-lg font-mono font-extrabold text-amber-300"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-7 flex flex-col">
+        <div class="glass-card p-4 rounded-3xl shadow-sm border border-indigo-100 flex-1 flex flex-col relative overflow-hidden min-h-[420px]">
+          <div class="absolute top-6 left-6 z-10 flex flex-wrap items-center gap-2">
+            <span class="bg-white/90 backdrop-blur text-slate-800 text-xs font-bold px-3 py-1.5 rounded-xl shadow border border-slate-200/80 flex items-center gap-2">
+              <i class="fa-solid fa-arrows-spin text-indigo-600 animate-spin"></i> Arrastra con el mouse para rotar en 3D
+            </span>
+          </div>
+
+          <div class="absolute bottom-6 left-6 z-10 bg-white/95 backdrop-blur p-3 rounded-2xl shadow border border-slate-200 text-xs space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-blue-500 border border-blue-700 inline-block"></span>
+              <span class="font-bold text-slate-700">Base ($A_b$): Superficie inferior</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-amber-500 border border-amber-700 inline-block"></span>
+              <span class="font-bold text-slate-700">Altura ($h$): Distancia vertical</span>
+            </div>
+          </div>
+
+          <div id="canvas-container" class="w-full flex-1 rounded-2xl bg-gradient-to-b from-slate-100 to-indigo-50/50 cursor-grab active:cursor-grabbing"></div>
+
+          <div class="mt-4 bg-white p-4 rounded-2xl border border-slate-200 flex flex-wrap justify-between items-center gap-4">
+            <div>
+              <div class="text-xs text-slate-500 font-semibold">Resultado Final de Volumen:</div>
+              <div id="final-volume-result" class="text-2xl font-black text-indigo-700 font-heading">0 cm³</div>
+            </div>
+            <div id="tip-box" class="bg-amber-50 border border-amber-200 text-amber-900 text-xs p-3 rounded-xl max-w-sm">
+              <i class="fa-solid fa-circle-info text-amber-600 mr-1"></i>
+              <span id="tip-text">El prisma mantiene la misma sección a lo largo de toda su altura.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: DEMOSTRACIÓN DE LA RELACIÓN 3:1 -->
+    <section id="section-experimento" class="hidden flex-1 flex-col space-y-6">
+      <div class="bg-indigo-900 text-white p-6 rounded-3xl shadow-lg border border-indigo-700 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="space-y-2 max-w-2xl">
+          <span class="bg-amber-400 text-indigo-950 font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider">Demostración Visual Clave</span>
+          <h2 class="text-2xl md:text-3xl font-bold font-heading">¿Por qué las Pirámides y Conos llevan $\frac{1}{3}$?</h2>
+          <p class="text-indigo-200 text-sm">
+            Si tomamos una pirámide y un prisma (o un cono y un cilindro) con <strong>exactamente la misma base y la misma altura</strong>, ¡se necesitan exactamente <strong>3 pirámides llenas de agua</strong> para llenar 1 prisma!
+          </p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="setExperimentPair('prism-pyramid')" id="exp-btn-poly" class="px-4 py-2.5 bg-amber-400 text-indigo-950 rounded-2xl font-bold text-sm shadow hover:bg-amber-300">
+            Prisma vs Pirámide
+          </button>
+          <button onclick="setExperimentPair('cylinder-cone')" id="exp-btn-round" class="px-4 py-2.5 bg-indigo-800 text-white rounded-2xl font-bold text-sm hover:bg-indigo-700 border border-indigo-600">
+            Cilindro vs Cono
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 flex-1">
+        <div class="md:col-span-4 glass-card p-6 rounded-3xl border border-indigo-100 flex flex-col justify-between">
+          <div class="space-y-4">
+            <h3 class="font-bold text-lg text-slate-800 border-b pb-2">Simulador de Trasvasije</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Haz clic en el botón para verter el contenido del recipiente puntiagudo dentro del recipiente recto.
+            </p>
+
+            <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100 text-center space-y-2">
+              <div class="text-xs font-extrabold uppercase text-indigo-600">Contenedor Principal</div>
+              <div id="fill-status-text" class="text-xl font-black text-indigo-900">0 / 3 Llenados (0%)</div>
+              <div class="w-full bg-slate-200 h-4 rounded-full overflow-hidden p-0.5">
+                <div id="fill-progress-bar" class="bg-gradient-to-r from-blue-500 to-indigo-600 h-full rounded-full transition-all duration-700" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 text-xs text-amber-900 space-y-2">
+              <div class="font-bold flex items-center gap-2">
+                <i class="fa-solid fa-calculator text-amber-600"></i> Conclusión Matemática:
+              </div>
+              <p id="exp-math-conclusion">
+                $V_{\text{pirámide}} = \frac{1}{3} \cdot V_{\text{prisma}}$<br>
+                El volumen de la pirámide es exactamente la tercera parte del prisma equivalente.
+              </p>
+            </div>
+          </div>
+
+          <div class="space-y-2 pt-4">
+            <button onclick="pourWater()" id="btn-pour" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-base shadow-lg transition-all flex items-center justify-center gap-2 pulse-glow">
+              <i class="fa-solid fa-faucet-drip"></i> ¡Verter Agua (1 Recipiente)!
+            </button>
+            <button onclick="resetPouring()" class="w-full py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-xs">
+              <i class="fa-solid fa-rotate-right"></i> Vaciar y Reiniciar
+            </button>
+          </div>
+        </div>
+
+        <div class="md:col-span-8 glass-card p-4 rounded-3xl border border-indigo-100 flex flex-col justify-center items-center relative overflow-hidden min-h-[380px]">
+          <div id="exp-canvas-container" class="w-full h-full min-h-[380px] bg-slate-900 rounded-2xl"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: RESOLUCIÓN PASO A PASO -->
+    <section id="section-calculadora" class="hidden flex-1 flex-col space-y-6">
+      <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm max-w-3xl mx-auto w-full space-y-6">
+        <div class="border-b pb-4">
+          <span class="bg-emerald-100 text-emerald-800 font-bold text-xs px-3 py-1 rounded-full uppercase">Guía de Apoyo Interactivas</span>
+          <h2 class="text-2xl font-bold text-slate-800 mt-2 font-heading">Asistente Paso a Paso para Resolver Volúmenes</h2>
+          <p class="text-xs text-slate-500">Diseñado para ayudarte a organizar los datos sin confundir las fórmulas.</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 bg-slate-100 p-1.5 rounded-2xl text-center text-xs font-bold">
+          <div id="wiz-step-1-indicator" class="py-2.5 rounded-xl bg-indigo-600 text-white shadow">1. Identificar Datos</div>
+          <div id="wiz-step-2-indicator" class="py-2.5 rounded-xl text-slate-500">2. Área Basal ($A_b$)</div>
+          <div id="wiz-step-3-indicator" class="py-2.5 rounded-xl text-slate-500">3. Volumen Final ($V$)</div>
+        </div>
+
+        <div id="wiz-content-1" class="space-y-4">
+          <label class="block text-sm font-extrabold text-slate-700">Selecciona el tipo de cuerpo geométrico del problema:</label>
+          <select id="wiz-shape-type" onchange="updateWizInputs()" class="w-full p-3 rounded-2xl border-2 border-slate-200 text-sm font-bold text-slate-700 focus:border-indigo-500 outline-none">
+            <option value="prisma">Prisma Rectangular (Caja, Estanque)</option>
+            <option value="piramide">Pirámide (Techo en punta, Cubierta)</option>
+            <option value="cilindro">Cilindro (Lata, Estanque redondo)</option>
+            <option value="cono">Cono (Embudo, Copa de postre)</option>
+          </select>
+
+          <div id="wiz-inputs-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100"></div>
+
+          <button onclick="goToWizStep(2)" class="w-full py-3 bg-indigo-600 text-white font-bold rounded-2xl text-sm hover:bg-indigo-700 shadow">
+            Siguiente Paso: Calcular Área de la Base <i class="fa-solid fa-arrow-right ml-1"></i>
+          </button>
+        </div>
+
+        <div id="wiz-content-2" class="hidden space-y-4">
+          <div class="bg-blue-50 p-4 rounded-2xl border border-blue-200 text-xs text-blue-900 space-y-2">
+            <div class="font-bold text-sm"><i class="fa-solid fa-circle-question text-blue-600"></i> ¿Cómo se calcula el área de la base en esta figura?</div>
+            <p id="wiz-base-explanation">Para un rectángulo, multiplica largo por ancho.</p>
+          </div>
+
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
+            <div class="text-xs font-bold text-slate-500">Cálculo del Área Basal ($A_b$):</div>
+            <div id="wiz-base-result" class="text-xl font-black text-indigo-700 mt-1">---</div>
+          </div>
+
+          <div class="flex gap-3">
+            <button onclick="goToWizStep(1)" class="w-1/3 py-3 bg-slate-200 text-slate-700 font-bold rounded-2xl text-sm hover:bg-slate-300">
+              <i class="fa-solid fa-arrow-left mr-1"></i> Volver
+            </button>
+            <button onclick="goToWizStep(3)" class="w-2/3 py-3 bg-indigo-600 text-white font-bold rounded-2xl text-sm hover:bg-indigo-700 shadow">
+              Paso Final: Calcular Volumen Total <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="wiz-content-3" class="hidden space-y-4">
+          <div id="wiz-factor-hint" class="bg-amber-50 p-4 rounded-2xl border border-amber-200 text-xs text-amber-900 space-y-1">
+            <div class="font-bold text-sm"><i class="fa-solid fa-triangle-exclamation text-amber-600"></i> ¡Atención al factor $\frac{1}{3}$!</div>
+            <p id="wiz-factor-text">Como esta figura termina en punta, debemos dividir el resultado entre 3 al final.</p>
+          </div>
+
+          <div class="bg-indigo-900 text-white p-6 rounded-2xl text-center space-y-2 shadow-inner">
+            <div class="text-xs text-indigo-300 font-bold uppercase tracking-wider">Volumen Total Obtenido</div>
+            <div id="wiz-final-volume" class="text-3xl font-black text-amber-300 font-heading">---</div>
+            <div id="wiz-final-detail" class="text-xs text-indigo-200 font-mono">---</div>
+          </div>
+
+          <button onclick="goToWizStep(1)" class="w-full py-3 bg-slate-200 text-slate-700 font-bold rounded-2xl text-sm hover:bg-slate-300">
+            <i class="fa-solid fa-rotate-left mr-1"></i> Resolver otro problema
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: DESAFÍOS -->
+    <section id="section-desafios" class="hidden flex-1 flex-col space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 flex-1">
+        <div class="md:col-span-5 space-y-3">
+          <div class="text-xs font-black uppercase text-slate-500 tracking-wider mb-2">Selecciona un ejercicio de tu guía:</div>
+
+          <div onclick="loadChallenge(0)" id="chal-card-0" class="chal-card glass-card p-4 rounded-2xl border-2 border-indigo-500 cursor-pointer transition-all hover:shadow-md">
+            <div class="flex justify-between items-start">
+              <span class="bg-indigo-100 text-indigo-800 text-[10px] font-black px-2 py-0.5 rounded-md">SESIÓN 1 - ÍTEM I</span>
+              <span id="badge-chal-0" class="text-xs text-slate-400"><i class="fa-regular fa-circle"></i></span>
+            </div>
+            <h4 class="font-bold text-sm text-slate-800 mt-1">1. Recipiente Prismático vs Pirámide</h4>
+            <p class="text-xs text-slate-500 line-clamp-2 mt-0.5">Largo = 8 cm, Ancho = 5 cm, Altura = 12 cm. Calcula el volumen de ambos.</p>
+          </div>
+
+          <div onclick="loadChallenge(1)" id="chal-card-1" class="chal-card glass-card p-4 rounded-2xl border-2 border-transparent hover:border-slate-300 cursor-pointer transition-all hover:shadow-md">
+            <div class="flex justify-between items-start">
+              <span class="bg-indigo-100 text-indigo-800 text-[10px] font-black px-2 py-0.5 rounded-md">SESIÓN 1 - PROBLEMA 1</span>
+              <span id="badge-chal-1" class="text-xs text-slate-400"><i class="fa-regular fa-circle"></i></span>
+            </div>
+            <h4 class="font-bold text-sm text-slate-800 mt-1">2. Estanque de Riego y Cubierta</h4>
+            <p class="text-xs text-slate-500 line-clamp-2 mt-0.5">Estanque de 3m x 3m x 2m. Cubierta piramidal de 1.5m de alto.</p>
+          </div>
+
+          <div onclick="loadChallenge(2)" id="chal-card-2" class="chal-card glass-card p-4 rounded-2xl border-2 border-transparent hover:border-slate-300 cursor-pointer transition-all hover:shadow-md">
+            <div class="flex justify-between items-start">
+              <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-md">SESIÓN 2 - ÍTEM I</span>
+              <span id="badge-chal-2" class="text-xs text-slate-400"><i class="fa-regular fa-circle"></i></span>
+            </div>
+            <h4 class="font-bold text-sm text-slate-800 mt-1">3. Estanque Cilíndrico y Cono</h4>
+            <p class="text-xs text-slate-500 line-clamp-2 mt-0.5">Radio r = 4 m, Altura h = 9 m. Expresar con y sin $\pi$.</p>
+          </div>
+
+          <div onclick="loadChallenge(3)" id="chal-card-3" class="chal-card glass-card p-4 rounded-2xl border-2 border-transparent hover:border-slate-300 cursor-pointer transition-all hover:shadow-md">
+            <div class="flex justify-between items-start">
+              <span class="bg-purple-100 text-purple-800 text-[10px] font-black px-2 py-0.5 rounded-md">SESIÓN 2 - PROBLEMA 4</span>
+              <span id="badge-chal-3" class="text-xs text-slate-400"><i class="fa-regular fa-circle"></i></span>
+            </div>
+            <h4 class="font-bold text-sm text-slate-800 mt-1">4. Silo Agrícola Compuesto</h4>
+            <p class="text-xs text-slate-500 line-clamp-2 mt-0.5">Cilindro (r=5m, h=12m) + Cono Techo (r=5m, h=3m).</p>
+          </div>
+        </div>
+
+        <div class="md:col-span-7 glass-card p-6 rounded-3xl border border-indigo-100 flex flex-col justify-between space-y-4">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+              <h3 id="chal-title" class="font-bold text-lg text-indigo-950 font-heading">Ejercicio Seleccionado</h3>
+              <span id="chal-tag" class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-lg">Puntaje: 5 pts</span>
+            </div>
+
+            <p id="chal-description" class="text-sm text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              Cargando enunciado...
+            </p>
+
+            <div id="chal-hint-box" class="hidden bg-amber-50 p-3 rounded-xl border border-amber-200 text-xs text-amber-900">
+              <span class="font-bold"><i class="fa-solid fa-lightbulb text-amber-600"></i> Pista de Apoyo:</span>
+              <span id="chal-hint-text">---</span>
+            </div>
+
+            <div id="chal-inputs-area" class="space-y-3 pt-2"></div>
+          </div>
+
+          <div class="pt-4 border-t flex flex-wrap gap-3 justify-between items-center">
+            <button onclick="toggleHint()" class="text-xs font-bold text-amber-700 hover:text-amber-800 bg-amber-100 px-3 py-2 rounded-xl border border-amber-200">
+              <i class="fa-solid fa-circle-question"></i> ¿Necesitas una pista?
+            </button>
+
+            <button onclick="checkChallengeAnswer()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-sm shadow-md transition-all">
+              <i class="fa-solid fa-check"></i> Comprobar Respuesta
+            </button>
+          </div>
+
+          <div id="chal-feedback" class="hidden p-4 rounded-2xl text-xs font-bold"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    let activeTab = 'explorador';
+    let currentShape = 'prisma';
+    let piMode = 3.14; 
+    
+    let scene, camera, renderer, controls;
+    let mainMesh, baseMesh, heightLineMesh;
+    
+    let dimensions = {
+      largo: 8,
+      ancho: 5,
+      radio: 4,
+      lado: 10,
+      altura: 12,
+      alturaCono: 3
+    };
+
+    function renderMath() {
+      if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+      }
+    }
+
+    function init3D() {
+      const container = document.getElementById('canvas-container');
+      if (!container) return;
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xf8fafc);
+
+      camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+      camera.position.set(18, 18, 24);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.shadowMap.enabled = true;
+      renderer.setPixelRatio(window.devicePixelRatio);
+      container.innerHTML = '';
+      container.appendChild(renderer.domElement);
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+      scene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      dirLight.position.set(20, 40, 20);
+      scene.add(dirLight);
+
+      const grid = new THREE.GridHelper(30, 30, 0xcbd5e1, 0xe2e8f0);
+      grid.position.y = -0.01;
+      scene.add(grid);
+
+      update3DShape();
+      animate();
+
+      window.addEventListener('resize', onWindowResize);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (controls) controls.update();
+      if (renderer && scene && camera) renderer.render(scene, camera);
+    }
+
+    function onWindowResize() {
+      const container = document.getElementById('canvas-container');
+      if (!container || !renderer || !camera) return;
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    function update3DShape() {
+      if (!scene) return;
+
+      if (mainMesh) scene.remove(mainMesh);
+      if (baseMesh) scene.remove(baseMesh);
+      if (heightLineMesh) scene.remove(heightLineMesh);
+
+      const group = new THREE.Group();
+
+      const bodyMaterial = new THREE.MeshPhongMaterial({
+        color: 0x6366f1,
+        transparent: true,
+        opacity: 0.65,
+        shininess: 90,
+        side: THREE.DoubleSide
+      });
+
+      const wireframeMaterial = new THREE.MeshBasicMaterial({
+        color: 0x312e81,
+        wireframe: true
+      });
+
+      const baseMaterial = new THREE.MeshBasicMaterial({
+        color: 0x3b82f6,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.85
+      });
+
+      const heightLineMaterial = new THREE.LineDashedMaterial({
+        color: 0xf59e0b,
+        dashSize: 0.5,
+        gapSize: 0.2,
+        linewidth: 3
+      });
+
+      let geom, baseGeom;
+      let h = dimensions.altura * 0.6; 
+
+      if (currentShape === 'prisma') {
+        let l = dimensions.largo * 0.6;
+        let w = dimensions.ancho * 0.6;
+        geom = new THREE.BoxGeometry(l, h, w);
+        baseGeom = new THREE.PlaneGeometry(l, w);
+
+        const mesh = new THREE.Mesh(geom, bodyMaterial);
+        const wire = new THREE.Mesh(geom, wireframeMaterial);
+        mesh.position.y = h / 2;
+        wire.position.y = h / 2;
+        group.add(mesh, wire);
+
+        const base = new THREE.Mesh(baseGeom, baseMaterial);
+        base.rotation.x = -Math.PI / 2;
+        base.position.y = 0.02;
+        group.add(base);
+
+      } else if (currentShape === 'piramide') {
+        let s = dimensions.lado * 0.6;
+        geom = new THREE.ConeGeometry(s * 0.7, h, 4);
+        baseGeom = new THREE.PlaneGeometry(s, s);
+
+        const mesh = new THREE.Mesh(geom, bodyMaterial);
+        const wire = new THREE.Mesh(geom, wireframeMaterial);
+        mesh.position.y = h / 2;
+        mesh.rotation.y = Math.PI / 4;
+        wire.position.y = h / 2;
+        wire.rotation.y = Math.PI / 4;
+        group.add(mesh, wire);
+
+        const base = new THREE.Mesh(baseGeom, baseMaterial);
+        base.rotation.x = -Math.PI / 2;
+        base.position.y = 0.02;
+        group.add(base);
+
+      } else if (currentShape === 'cilindro') {
+        let r = dimensions.radio * 0.6;
+        geom = new THREE.CylinderGeometry(r, r, h, 32);
+        baseGeom = new THREE.CircleGeometry(r, 32);
+
+        const mesh = new THREE.Mesh(geom, bodyMaterial);
+        const wire = new THREE.Mesh(geom, wireframeMaterial);
+        mesh.position.y = h / 2;
+        wire.position.y = h / 2;
+        group.add(mesh, wire);
+
+        const base = new THREE.Mesh(baseGeom, baseMaterial);
+        base.rotation.x = -Math.PI / 2;
+        base.position.y = 0.02;
+        group.add(base);
+
+      } else if (currentShape === 'cono') {
+        let r = dimensions.radio * 0.6;
+        geom = new THREE.ConeGeometry(r, h, 32);
+        baseGeom = new THREE.CircleGeometry(r, 32);
+
+        const mesh = new THREE.Mesh(geom, bodyMaterial);
+        const wire = new THREE.Mesh(geom, wireframeMaterial);
+        mesh.position.y = h / 2;
+        wire.position.y = h / 2;
+        group.add(mesh, wire);
+
+        const base = new THREE.Mesh(baseGeom, baseMaterial);
+        base.rotation.x = -Math.PI / 2;
+        base.position.y = 0.02;
+        group.add(base);
+
+      } else if (currentShape === 'silo') {
+        let r = dimensions.radio * 0.6;
+        let hc = dimensions.altura * 0.5;
+        let hk = dimensions.alturaCono * 0.6;
+
+        const cylGeom = new THREE.CylinderGeometry(r, r, hc, 32);
+        const coneGeom = new THREE.ConeGeometry(r, hk, 32);
+        baseGeom = new THREE.CircleGeometry(r, 32);
+
+        const cylMesh = new THREE.Mesh(cylGeom, bodyMaterial);
+        cylMesh.position.y = hc / 2;
+        const coneMesh = new THREE.Mesh(coneGeom, bodyMaterial);
+        coneMesh.position.y = hc + hk / 2;
+
+        group.add(cylMesh, coneMesh);
+
+        const base = new THREE.Mesh(baseGeom, baseMaterial);
+        base.rotation.x = -Math.PI / 2;
+        base.position.y = 0.02;
+        group.add(base);
+      }
+
+      const points = [];
+      points.push(new THREE.Vector3(0, 0, 0));
+      points.push(new THREE.Vector3(0, h, 0));
+      const lineGeom = new THREE.BufferGeometry().setFromPoints(points);
+      const heightLine = new THREE.Line(lineGeom, heightLineMaterial);
+      heightLine.computeLineDistances();
+      group.add(heightLine);
+
+      mainMesh = group;
+      scene.add(mainMesh);
+
+      calculateCalculationsUI();
+    }
+
+    function renderControls() {
+      const container = document.getElementById('controls-container');
+      if (!container) return;
+
+      let html = '';
+
+      if (currentShape === 'prisma') {
+        html = `
+          <div>
+            <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
+              <span>Largo (l):</span> <span class="text-indigo-600 font-mono" id="val-largo">${dimensions.largo} cm</span>
+            </div>
+            <input type="range" min="1" max="15" value="${dimensions.largo}" oninput="updateDim('largo', this.value)" class="w-full accent-indigo-600">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
+              <span>Ancho (a):</span> <span class="text-indigo-600 font-mono" id="val-ancho">${dimensions.ancho} cm</span>
+            </div>
+            <input type="range" min="1" max="15" value="${dimensions.ancho}" oninput="updateDim('ancho', this.value)" class="w-full accent-indigo-600">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-bold text-amber-700 mb-1">
+              <span>Altura (h):</span> <span class="text-amber-600 font-mono" id="val-altura">${dimensions.altura} cm</span>
+            </div>
+            <input type="range" min="1" max="20" value="${dimensions.altura}" oninput="updateDim('altura', this.value)" class="w-full accent-amber-500">
+          </div>
+        `;
+      } else if (currentShape === 'piramide') {
+        html = `
+          <div>
+            <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
+              <span>Lado Base Cuadrada (a):</span> <span class="text-indigo-600 font-mono" id="val-lado">${dimensions.lado} cm</span>
+            </div>
+            <input type="range" min="1" max="15" value="${dimensions.lado}" oninput="updateDim('lado', this.value)" class="w-full accent-indigo-600">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-bold text-amber-700 mb-1">
+              <span>Altura Pirámide (h):</span> <span class="text-amber-600 font-mono" id="val-altura">${dimensions.altura} cm</span>
+            </div>
+            <input type="range" min="1" max="20" value="${dimensions.altura}" oninput="updateDim('altura', this.value)" class="w-full accent-amber-500">
+          </div>
+        `;
+      } else if (currentShape === 'cilindro' || currentShape === 'cono') {
+        html = `
+          <div>
+            <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
+              <span>Radio Basal (r):</span> <span class="text-indigo-600 font-mono" id="val-radio">${dimensions.radio} cm</span>
+            </div>
+            <input type="range" min="1" max="12" value="${dimensions.radio}" oninput="updateDim('radio', this.value)" class="w-full accent-indigo-600">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-bold text-amber-700 mb-1">
+              <span>Altura (h):</span> <span class="text-amber-600 font-mono" id="val-altura">${dimensions.altura} cm</span>
+            </div>
+            <input type="range" min="1" max="20" value="${dimensions.altura}" oninput="updateDim('altura', this.value)" class="w-full accent-amber-500">
+          </div>
+        `;
+      } else if (currentShape === 'silo') {
+        html = `
+          <div>
+            <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
+              <span>Radio Basal Común (r):</span> <span class="text-indigo-600 font-mono" id="val-radio">${dimensions.radio} m</span>
+            </div>
+            <input type="range" min="1" max="10" value="${dimensions.radio}" oninput="updateDim('radio', this.value)" class="w-full accent-indigo-600">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-bold text-amber-700 mb-1">
+              <span>Altura Cilindro (h1):</span> <span class="text-amber-600 font-mono" id="val-altura">${dimensions.altura} m</span>
+            </div>
+            <input type="range" min="1" max="20" value="${dimensions.altura}" oninput="updateDim('altura', this.value)" class="w-full accent-amber-500">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-bold text-rose-700 mb-1">
+              <span>Altura Cono Techo (h2):</span> <span class="text-rose-600 font-mono" id="val-alturaCono">${dimensions.alturaCono} m</span>
+            </div>
+            <input type="range" min="1" max="10" value="${dimensions.alturaCono}" oninput="updateDim('alturaCono', this.value)" class="w-full accent-rose-500">
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+      renderMath();
+    }
+
+    function updateDim(key, val) {
+      dimensions[key] = parseFloat(val);
+      const span = document.getElementById(`val-${key}`);
+      if (span) span.innerText = `${val} ${currentShape === 'silo' ? 'm' : 'cm'}`;
+      update3DShape();
+    }
+
+    function selectShape(shape) {
+      currentShape = shape;
+      document.querySelectorAll('.shape-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-50', 'border-indigo-500', 'text-indigo-900');
+        btn.classList.add('bg-white', 'border-slate-200', 'text-slate-700');
+      });
+
+      const selectedBtn = document.getElementById(`btn-${shape}`);
+      if (selectedBtn) {
+        selectedBtn.classList.remove('bg-white', 'border-slate-200', 'text-slate-700');
+        selectedBtn.classList.add('bg-indigo-50', 'border-indigo-500', 'text-indigo-900');
+      }
+
+      renderControls();
+      update3DShape();
+    }
+
+    function togglePiMode(mode) {
+      piMode = mode;
+      document.getElementById('pi-314').className = mode === 3.14 ? 'px-2 py-0.5 rounded-lg bg-indigo-600 text-white' : 'px-2 py-0.5 rounded-lg hover:bg-slate-200';
+      document.getElementById('pi-symbol').className = mode === 'symbol' ? 'px-2 py-0.5 rounded-lg bg-indigo-600 text-white' : 'px-2 py-0.5 rounded-lg hover:bg-slate-200';
+      calculateCalculationsUI();
+    }
+
+    function calculateCalculationsUI() {
+      const baseDisp = document.getElementById('base-calc-display');
+      const volDisp = document.getElementById('volume-calc-display');
+      const finalResult = document.getElementById('final-volume-result');
+      const tipText = document.getElementById('tip-text');
+      const badge = document.getElementById('formula-badge');
+
+      if (!baseDisp || !volDisp) return;
+
+      let Ab = 0;
+      let Vol = 0;
+      let unit = currentShape === 'silo' ? 'm³' : 'cm³';
+      let areaUnit = currentShape === 'silo' ? 'm²' : 'cm²';
+
+      if (currentShape === 'prisma') {
+        badge.innerText = 'Prisma (Sin 1/3)';
+        Ab = dimensions.largo * dimensions.ancho;
+        Vol = Ab * dimensions.altura;
+
+        baseDisp.innerHTML = `$A_b = \\text{largo} \\cdot \\text{ancho} = ${dimensions.largo} \\cdot ${dimensions.ancho} = ${Ab} \\text{ ${areaUnit}}$`;
+        volDisp.innerHTML = `$V = A_b \\cdot h = ${Ab} \\cdot ${dimensions.altura} = ${Vol} \\text{ ${unit}}$`;
+        tipText.innerText = "¡Los prismas mantienen su forma constante desde la base hasta arriba! Fórmula: V = Ab · h";
+
+      } else if (currentShape === 'piramide') {
+        badge.innerText = 'Pirámide (Lleva 1/3)';
+        Ab = dimensions.lado * dimensions.lado;
+        Vol = (1 / 3) * Ab * dimensions.altura;
+
+        baseDisp.innerHTML = `$A_b = \\text{lado}^2 = ${dimensions.lado}^2 = ${Ab} \\text{ ${areaUnit}}$`;
+        volDisp.innerHTML = `$V = \\frac{1}{3} \\cdot A_b \\cdot h = \\frac{1}{3} \\cdot ${Ab} \\cdot ${dimensions.altura} = ${Vol.toFixed(2)} \\text{ ${unit}}$`;
+        tipText.innerText = "¡Como termina en cúspide (punta), su volumen es EXACTAMENTE un tercio (1/3) del prisma equivalente!";
+
+      } else if (currentShape === 'cilindro') {
+        badge.innerText = 'Cilindro (Base Circular)';
+        let r2 = dimensions.radio * dimensions.radio;
+
+        if (piMode === 'symbol') {
+          baseDisp.innerHTML = `$A_b = \\pi \\cdot r^2 = \\pi \\cdot ${dimensions.radio}^2 = ${r2}\\pi \\text{ ${areaUnit}}$`;
+          volDisp.innerHTML = `$V = A_b \\cdot h = ${r2}\\pi \\cdot ${dimensions.altura} = ${r2 * dimensions.altura}\\pi \\text{ ${unit}}$`;
+          finalResult.innerHTML = `${r2 * dimensions.altura}\\pi <span class="text-sm font-normal text-slate-500">(${ (r2 * dimensions.altura * 3.14).toFixed(2) } cm³)</span>`;
+          tipText.innerText = "Un cilindro es como una pila de discos circulares iguales.";
+          renderMath();
+          return;
+        } else {
+          Ab = 3.14 * r2;
+          Vol = Ab * dimensions.altura;
+          baseDisp.innerHTML = `$A_b = 3,14 \\cdot ${dimensions.radio}^2 = ${Ab.toFixed(2)} \\text{ ${areaUnit}}$`;
+          volDisp.innerHTML = `$V = A_b \\cdot h = ${Ab.toFixed(2)} \\cdot ${dimensions.altura} = ${Vol.toFixed(2)} \\text{ ${unit}}$`;
+        }
+        tipText.innerText = "Un cilindro es como una pila de discos circulares iguales.";
+
+      } else if (currentShape === 'cono') {
+        badge.innerText = 'Cono (Circular en Punta)';
+        let r2 = dimensions.radio * dimensions.radio;
+
+        if (piMode === 'symbol') {
+          baseDisp.innerHTML = `$A_b = \\pi \\cdot r^2 = ${r2}\\pi \\text{ ${areaUnit}}$`;
+          let val = (r2 * dimensions.altura) / 3;
+          volDisp.innerHTML = `$V = \\frac{1}{3} \\pi r^2 h = \\frac{1}{3} \\cdot ${r2}\\pi \\cdot ${dimensions.altura} = ${val.toFixed(2)}\\pi \\text{ ${unit}}$`;
+          finalResult.innerHTML = `${val.toFixed(2)}\\pi <span class="text-sm font-normal text-slate-500">(${ (val * 3.14).toFixed(2) } cm³)</span>`;
+          tipText.innerText = "El cono requiere la constante 1/3 porque termina en punta circular.";
+          renderMath();
+          return;
+        } else {
+          Ab = 3.14 * r2;
+          Vol = (1 / 3) * Ab * dimensions.altura;
+          baseDisp.innerHTML = `$A_b = 3,14 \\cdot ${dimensions.radio}^2 = ${Ab.toFixed(2)} \\text{ ${areaUnit}}$`;
+          volDisp.innerHTML = `$V = \\frac{1}{3} A_b \\cdot h = \\frac{1}{3} \\cdot ${Ab.toFixed(2)} \\cdot ${dimensions.altura} = ${Vol.toFixed(2)} \\text{ ${unit}}$`;
+        }
+        tipText.innerText = "El cono requiere la constante 1/3 porque termina en punta circular.";
+
+      } else if (currentShape === 'silo') {
+        badge.innerText = 'Silo Compuesto (Suma)';
+        let r2 = dimensions.radio * dimensions.radio;
+        Ab = 3.14 * r2;
+        let vCil = Ab * dimensions.altura;
+        let vCono = (1 / 3) * Ab * dimensions.alturaCono;
+        Vol = vCil + vCono;
+
+        baseDisp.innerHTML = `$A_b \\text{ Común} = 3,14 \\cdot ${dimensions.radio}^2 = ${Ab.toFixed(2)} \\text{ m}^2$`;
+        volDisp.innerHTML = `$V_{\\text{total}} = V_{\\text{cilindro}} + V_{\\text{cono}} = ${vCil.toFixed(1)} + ${vCono.toFixed(1)} = ${Vol.toFixed(2)} \\text{ m}^3$`;
+        tipText.innerText = "En cuerpos compuestos, calcula el volumen de cada parte por separado y luego SÚMALOS.";
+      }
+
+      finalResult.innerText = `${Vol.toFixed(2)} ${unit}`;
+      renderMath();
+    }
+
+    function switchTab(tab) {
+      activeTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.className = 'tab-btn text-indigo-100 hover:text-white hover:bg-indigo-700/50 px-4 py-2 rounded-lg transition-all flex items-center gap-2 whitespace-nowrap';
+      });
+
+      const activeBtn = document.getElementById(`tab-${tab}`);
+      if (activeBtn) {
+        activeBtn.className = 'tab-btn active-tab bg-amber-400 text-indigo-950 px-4 py-2 rounded-lg transition-all shadow flex items-center gap-2 whitespace-nowrap font-bold';
+      }
+
+      document.getElementById('section-explorador').classList.add('hidden');
+      document.getElementById('section-experimento').classList.add('hidden');
+      document.getElementById('section-calculadora').classList.add('hidden');
+      document.getElementById('section-desafios').classList.add('hidden');
+
+      document.getElementById(`section-${tab}`).classList.remove('hidden');
+      document.getElementById(`section-${tab}`).classList.add('flex');
+
+      if (tab === 'explorador') {
+        setTimeout(onWindowResize, 100);
+      } else if (tab === 'experimento') {
+        setTimeout(() => {
+          initExperimentCanvas();
+        }, 100);
+      } else if (tab === 'calculadora') {
+        updateWizInputs();
+      } else if (tab === 'desafios') {
+        loadChallenge(0);
+      }
+      renderMath();
+    }
+
+    // ==========================================
+    // SECCIÓN DEMOSTRACIÓN 3:1 (CORREGIDO)
+    // ==========================================
+    let expPourCount = 0;
+    let expPair = 'prism-pyramid'; 
+    let expScene, expCamera, expRenderer, expWaterMesh, expControls, expAnimId;
+
+    function setExperimentPair(pair) {
+      expPair = pair;
+      resetPouring();
+      document.getElementById('exp-btn-poly').className = pair === 'prism-pyramid' ? 'px-4 py-2.5 bg-amber-400 text-indigo-950 rounded-2xl font-bold text-sm shadow' : 'px-4 py-2.5 bg-indigo-800 text-white rounded-2xl font-bold text-sm hover:bg-indigo-700 border border-indigo-600';
+      document.getElementById('exp-btn-round').className = pair === 'cylinder-cone' ? 'px-4 py-2.5 bg-amber-400 text-indigo-950 rounded-2xl font-bold text-sm shadow' : 'px-4 py-2.5 bg-indigo-800 text-white rounded-2xl font-bold text-sm hover:bg-indigo-700 border border-indigo-600';
+      initExperimentCanvas();
+    }
+
+    function initExperimentCanvas() {
+      const container = document.getElementById('exp-canvas-container');
+      if (!container) return;
+
+      if (expAnimId) {
+        cancelAnimationFrame(expAnimId);
+      }
+
+      expScene = new THREE.Scene();
+      expScene.background = new THREE.Color(0x0f172a);
+
+      const width = container.clientWidth || 500;
+      const height = container.clientHeight || 380;
+
+      expCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+      expCamera.position.set(12, 10, 16);
+
+      expRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      expRenderer.setSize(width, height);
+      expRenderer.setPixelRatio(window.devicePixelRatio);
+      container.innerHTML = '';
+      container.appendChild(expRenderer.domElement);
+
+      expControls = new THREE.OrbitControls(expCamera, expRenderer.domElement);
+      expControls.enableDamping = true;
+      expControls.dampingFactor = 0.05;
+
+      // Iluminación intensa para materiales transparentes
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+      expScene.add(ambientLight);
+
+      const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.2);
+      dirLight1.position.set(15, 25, 15);
+      expScene.add(dirLight1);
+
+      const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 0.6);
+      dirLight2.position.set(-15, 10, -15);
+      expScene.add(dirLight2);
+
+      // Rejilla de base
+      const grid = new THREE.GridHelper(20, 20, 0x334155, 0x1e293b);
+      grid.position.y = -0.01;
+      expScene.add(grid);
+
+      // Material translúcido del contenedor exterior
+      const glassMat = new THREE.MeshPhongMaterial({
+        color: 0x94a3b8,
+        transparent: true,
+        opacity: 0.35,
+        shininess: 100,
+        side: THREE.DoubleSide
+      });
+
+      const wireframeMat = new THREE.MeshBasicMaterial({
+        color: 0x64748b,
+        wireframe: true
+      });
+
+      let containerGeom;
+      if (expPair === 'prism-pyramid') {
+        containerGeom = new THREE.BoxGeometry(6, 8, 6);
+      } else {
+        containerGeom = new THREE.CylinderGeometry(3.5, 3.5, 8, 32);
+      }
+
+      const glassMesh = new THREE.Mesh(containerGeom, glassMat);
+      const wireMesh = new THREE.Mesh(containerGeom, wireframeMat);
+      glassMesh.position.y = 4;
+      wireMesh.position.y = 4;
+      expScene.add(glassMesh, wireMesh);
+
+      // Malla de Agua fluida
+      let waterGeom;
+      if (expPair === 'prism-pyramid') {
+        waterGeom = new THREE.BoxGeometry(5.8, 1, 5.8);
+      } else {
+        waterGeom = new THREE.CylinderGeometry(3.4, 3.4, 1, 32);
+      }
+
+      const waterMat = new THREE.MeshPhongMaterial({
+        color: 0x0284c7,
+        transparent: true,
+        opacity: 0.85,
+        shininess: 90
+      });
+
+      expWaterMesh = new THREE.Mesh(waterGeom, waterMat);
+      expWaterMesh.position.y = 0.5;
+      expWaterMesh.scale.set(1, 0.001, 1); // Inicialmente vacío
+      expScene.add(expWaterMesh);
+
+      function renderExp() {
+        expAnimId = requestAnimationFrame(renderExp);
+        if (expControls) expControls.update();
+        if (expRenderer && expScene && expCamera) {
+          expRenderer.render(expScene, expCamera);
+        }
+      }
+      renderExp();
+    }
+
+    function pourWater() {
+      if (expPourCount >= 3) {
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        return;
+      }
+
+      expPourCount++;
+      const fillFraction = expPourCount / 3;
+      const targetHeight = fillFraction * 7.8; // Altura máxima 7.8
+
+      let currentHeight = expWaterMesh.scale.y * 1;
+      let startHeight = expWaterMesh.position.y * 2; 
+
+      let startTime = null;
+      const duration = 800; // ms de animación
+
+      function animateFill(timestamp) {
+        if (!startTime) startTime = timestamp;
+        let progress = (timestamp - startTime) / duration;
+        if (progress > 1) progress = 1;
+
+        let h = currentHeight + (targetHeight - currentHeight) * progress;
+        if (h <= 0.01) h = 0.01;
+
+        expWaterMesh.scale.y = h;
+        expWaterMesh.position.y = h / 2;
+
+        if (progress < 1) {
+          requestAnimationFrame(animateFill);
+        }
+      }
+      requestAnimationFrame(animateFill);
+
+      document.getElementById('fill-status-text').innerText = `${expPourCount} / 3 Llenados (${Math.round(fillFraction * 100)}%)`;
+      document.getElementById('fill-progress-bar').style.width = `${fillFraction * 100}%`;
+
+      if (expPourCount === 3) {
+        document.getElementById('btn-pour').innerText = "¡Contenedor Completamente Lleno!";
+        document.getElementById('btn-pour').className = "w-full py-4 bg-emerald-600 text-white rounded-2xl font-black text-base shadow-lg";
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+      }
+    }
+
+    function resetPouring() {
+      expPourCount = 0;
+      if (expWaterMesh) {
+        expWaterMesh.scale.y = 0.001;
+        expWaterMesh.position.y = 0.05;
+      }
+      document.getElementById('fill-status-text').innerText = `0 / 3 Llenados (0%)`;
+      document.getElementById('fill-progress-bar').style.width = `0%`;
+      document.getElementById('btn-pour').innerText = "¡Verter Agua (1 Recipiente)!";
+      document.getElementById('btn-pour').className = "w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-base shadow-lg transition-all flex items-center justify-center gap-2 pulse-glow";
+    }
+
+    let wizStep = 1;
+
+    function goToWizStep(step) {
+      wizStep = step;
+      document.getElementById('wiz-content-1').classList.add('hidden');
+      document.getElementById('wiz-content-2').classList.add('hidden');
+      document.getElementById('wiz-content-3').classList.add('hidden');
+
+      document.getElementById(`wiz-content-${step}`).classList.remove('hidden');
+
+      document.getElementById('wiz-step-1-indicator').className = step === 1 ? 'py-2.5 rounded-xl bg-indigo-600 text-white shadow' : 'py-2.5 rounded-xl text-slate-500';
+      document.getElementById('wiz-step-2-indicator').className = step === 2 ? 'py-2.5 rounded-xl bg-indigo-600 text-white shadow' : 'py-2.5 rounded-xl text-slate-500';
+      document.getElementById('wiz-step-3-indicator').className = step === 3 ? 'py-2.5 rounded-xl bg-indigo-600 text-white shadow' : 'py-2.5 rounded-xl text-slate-500';
+
+      if (step === 2) calculateWizBase();
+      if (step === 3) calculateWizFinal();
+      renderMath();
+    }
+
+    function updateWizInputs() {
+      const type = document.getElementById('wiz-shape-type').value;
+      const container = document.getElementById('wiz-inputs-container');
+
+      if (type === 'prisma') {
+        container.innerHTML = `
+          <div><label class="block text-xs font-bold text-slate-600">Largo (l) cm:</label><input id="w-largo" type="number" value="8" class="w-full p-2 rounded-xl border mt-1"></div>
+          <div><label class="block text-xs font-bold text-slate-600">Ancho (a) cm:</label><input id="w-ancho" type="number" value="5" class="w-full p-2 rounded-xl border mt-1"></div>
+          <div><label class="block text-xs font-bold text-slate-600">Altura (h) cm:</label><input id="w-altura" type="number" value="12" class="w-full p-2 rounded-xl border mt-1"></div>
+        `;
+      } else if (type === 'piramide') {
+        container.innerHTML = `
+          <div><label class="block text-xs font-bold text-slate-600">Lado Base (a) cm:</label><input id="w-lado" type="number" value="10" class="w-full p-2 rounded-xl border mt-1"></div>
+          <div><label class="block text-xs font-bold text-slate-600">Altura Pirámide (h) cm:</label><input id="w-altura" type="number" value="12" class="w-full p-2 rounded-xl border mt-1"></div>
+        `;
+      } else if (type === 'cilindro' || type === 'cono') {
+        container.innerHTML = `
+          <div><label class="block text-xs font-bold text-slate-600">Radio Basal (r) cm:</label><input id="w-radio" type="number" value="4" class="w-full p-2 rounded-xl border mt-1"></div>
+          <div><label class="block text-xs font-bold text-slate-600">Altura (h) cm:</label><input id="w-altura" type="number" value="9" class="w-full p-2 rounded-xl border mt-1"></div>
+        `;
+      }
+    }
+
+    function calculateWizBase() {
+      const type = document.getElementById('wiz-shape-type').value;
+      const res = document.getElementById('wiz-base-result');
+      const exp = document.getElementById('wiz-base-explanation');
+
+      if (type === 'prisma') {
+        let l = parseFloat(document.getElementById('w-largo').value) || 0;
+        let a = parseFloat(document.getElementById('w-ancho').value) || 0;
+        exp.innerText = "Para un rectángulo, multiplica largo × ancho.";
+        res.innerHTML = `$A_b = ${l} \\times ${a} = ${l * a} \\text{ cm}^2$`;
+      } else if (type === 'piramide') {
+        let side = parseFloat(document.getElementById('w-lado').value) || 0;
+        exp.innerText = "Para un cuadrado, eleva el lado al cuadrado (lado × lado).";
+        res.innerHTML = `$A_b = ${side}^2 = ${side * side} \\text{ cm}^2$`;
+      } else {
+        let r = parseFloat(document.getElementById('w-radio').value) || 0;
+        exp.innerText = "Para un círculo, aplica A_b = 3,14 × r².";
+        res.innerHTML = `$A_b = 3,14 \\times ${r}^2 = ${(3.14 * r * r).toFixed(2)} \\text{ cm}^2$`;
+      }
+    }
+
+    function calculateWizFinal() {
+      const type = document.getElementById('wiz-shape-type').value;
+      const h = parseFloat(document.getElementById('w-altura').value) || 0;
+      const finalVal = document.getElementById('wiz-final-volume');
+      const finalDet = document.getElementById('wiz-final-detail');
+      const hintText = document.getElementById('wiz-factor-text');
+
+      let Ab = 0;
+      let isPointy = type === 'piramide' || type === 'cono';
+
+      if (type === 'prisma') Ab = (parseFloat(document.getElementById('w-largo').value)||0) * (parseFloat(document.getElementById('w-ancho').value)||0);
+      else if (type === 'piramide') Ab = Math.pow(parseFloat(document.getElementById('w-lado').value)||0, 2);
+      else Ab = 3.14 * Math.pow(parseFloat(document.getElementById('w-radio').value)||0, 2);
+
+      let vol = isPointy ? (1 / 3) * Ab * h : Ab * h;
+
+      if (isPointy) {
+        hintText.innerText = "¡Recuerda! Esta figura termina en punta, por lo que su fórmula incluye dividir por 3: V = (A_b × h) ÷ 3";
+      } else {
+        hintText.innerText = "Esta figura mantiene bases paralelas uniformes, NO se divide entre 3: V = A_b × h";
+      }
+
+      finalVal.innerText = `${vol.toFixed(2)} cm³`;
+      finalDet.innerText = isPointy ? `V = (${Ab.toFixed(1)} × ${h}) ÷ 3` : `V = ${Ab.toFixed(1)} × ${h}`;
+    }
+
+    const challengesData = [
+      {
+        title: "1. Recipiente Prismático vs Pirámide (Sesión 1 - Ítem I)",
+        desc: "Un recipiente prismático recto de base rectangular (largo = 8 cm, ancho = 5 cm) tiene una altura de 12 cm. Calcule el área de la base y los volúmenes correspondientes.",
+        hint: "Primero calcula A_b = 8 × 5 = 40. Luego V_prisma = 40 × 12. Finalmente, V_pirámide = V_prisma ÷ 3.",
+        inputs: [
+          { label: "a) Área de la base (A_b) en cm²:", key: "ab", correct: 40 },
+          { label: "a) Volumen total del Prisma en cm³:", key: "v_prisma", correct: 480 },
+          { label: "b) Volumen de la Pirámide equivalente en cm³:", key: "v_piramide", correct: 160 }
+        ]
+      },
+      {
+        title: "2. El Estanque de Riego y la Cubierta (Sesión 1 - Problema 1)",
+        desc: "Un estanque prismático tiene base cuadrada de 3m de lado y 2m de profundidad. Sobre él hay una cubierta piramidal de la misma base y 1,5m de altura.",
+        hint: "Capacidad Estanque = 3 × 3 × 2 = 18 m³. Cubierta Piramidal = (1/3) × (3 × 3) × 1.5 = 4,5 m³.",
+        inputs: [
+          { label: "1) Capacidad máxima del estanque prismático (m³):", key: "v_estanque", correct: 18 },
+          { label: "2) Volumen interior de la cubierta piramidal (m³):", key: "v_cubierta", correct: 4.5 }
+        ]
+      },
+      {
+        title: "3. Estanque Cilíndrico y Cono (Sesión 2 - Ítem I)",
+        desc: "Un estanque cilíndrico tiene radio r = 4 m y altura h = 9 m. Considera $\\pi \\approx 3,14$.",
+        hint: "A_b = 3,14 × 4² = 50,24 m². V_cilindro = 50,24 × 9 = 452,16 m². V_cono = 452,16 ÷ 3 = 150,72 m³.",
+        inputs: [
+          { label: "b) Volumen aproximado del Cilindro (m³):", key: "v_cil", correct: 452.16 },
+          { label: "c) Volumen del Cono equivalente (m³):", key: "v_cono", correct: 150.72 }
+        ]
+      },
+      {
+        title: "4. Silo Agrícola Compuesto (Sesión 2 - Problema 4)",
+        desc: "Un silo agrícola tiene un cilindro inferior (r = 5m, h1 = 12m) y un techo cónico (r = 5m, h2 = 3m). Considera $\\pi \\approx 3,14$.",
+        hint: "A_b = 3,14 × 25 = 78,5 m². V_cilindro = 78,5 × 12 = 942 m³. V_cono = (1/3) × 78,5 × 3 = 78,5 m³. Suma ambos.",
+        inputs: [
+          { label: "1) Área basal común A_b (m²):", key: "ab_silo", correct: 78.5 },
+          { label: "2) Volumen del cilindro (m³):", key: "vcil_silo", correct: 942 },
+          { label: "3) Volumen del techo cónico (m³):", key: "vcono_silo", correct: 78.5 },
+          { label: "4) Volumen TOTAL del silo completo (m³):", key: "vtot_silo", correct: 1020.5 }
+        ]
+      }
+    ];
+
+    let currentChallengeIndex = 0;
+
+    function loadChallenge(idx) {
+      currentChallengeIndex = idx;
+      const data = challengesData[idx];
+
+      document.querySelectorAll('.chal-card').forEach((c, i) => {
+        c.className = i === idx ? 'chal-card glass-card p-4 rounded-2xl border-2 border-indigo-500 cursor-pointer shadow-md' : 'chal-card glass-card p-4 rounded-2xl border-2 border-transparent hover:border-slate-300 cursor-pointer';
+      });
+
+      document.getElementById('chal-title').innerText = data.title;
+      document.getElementById('chal-description').innerText = data.desc;
+      document.getElementById('chal-hint-text').innerText = data.hint;
+      document.getElementById('chal-hint-box').classList.add('hidden');
+      document.getElementById('chal-feedback').classList.add('hidden');
+
+      const container = document.getElementById('chal-inputs-area');
+      container.innerHTML = '';
+
+      data.inputs.forEach((inp, i) => {
+        container.innerHTML += `
+          <div class="space-y-1">
+            <label class="block text-xs font-bold text-slate-700">${inp.label}</label>
+            <input type="number" step="0.01" id="chal-input-${i}" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm font-bold text-indigo-900 focus:border-indigo-500 outline-none" placeholder="Ingresa tu resultado numérico...">
+          </div>
+        `;
+      });
+      renderMath();
+    }
+
+    function toggleHint() {
+      const box = document.getElementById('chal-hint-box');
+      box.classList.toggle('hidden');
+    }
+
+    function checkChallengeAnswer() {
+      const data = challengesData[currentChallengeIndex];
+      let allCorrect = true;
+
+      data.inputs.forEach((inp, i) => {
+        const val = parseFloat(document.getElementById(`chal-input-${i}`).value);
+        if (Math.abs(val - inp.correct) > 0.5 || isNaN(val)) {
+          allCorrect = false;
+        }
+      });
+
+      const feedback = document.getElementById('chal-feedback');
+      feedback.classList.remove('hidden');
+
+      if (allCorrect) {
+        feedback.className = "p-4 rounded-2xl text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center gap-2";
+        feedback.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i> ¡Excelente trabajo! Todos los cálculos son correctos.`;
+        document.getElementById(`badge-chal-${currentChallengeIndex}`).innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i>`;
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
+      } else {
+        feedback.className = "p-4 rounded-2xl text-xs font-bold bg-rose-100 text-rose-900 border border-rose-300 flex items-center gap-2";
+        feedback.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 text-lg"></i> Algunos valores no coinciden. Revisa el procedimiento o despliega la pista de apoyo.`;
+      }
+    }
+
+    window.onload = function() {
+      init3D();
+      renderControls();
+      renderMath();
+    };
+  </script>
 </body>
 </html>
